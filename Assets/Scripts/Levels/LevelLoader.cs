@@ -53,7 +53,7 @@ public class LevelLoader {
 
 		using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
 		{
-            // TODO: read Lsystem id from xml to determine which Lsystem generated this level
+            // TODO: read Lsystem id from xml to determine which Lsystem generated this level (uncomment below lines when ready to use)
             //reader.ReadToFollowing("Lsystem");
             //reader.MoveToAttribute("id");
             //level.lSystem = (int)Convert.ToInt32(reader.Value);

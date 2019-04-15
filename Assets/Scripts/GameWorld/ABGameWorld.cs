@@ -282,8 +282,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
         /* TODO: Update database by adding the player's rating to the total stars under the given lsystem id
          * Open connection to database
-         * Query for current stars value for the given id
-         * update current stars value by adding the user's rating to the old value
+         * add new entry with lsystem id and user's rating
          * close connection
          * (note: this is a temporary solution until we can restructure to open connection once, in order to make it quicker)
          */
