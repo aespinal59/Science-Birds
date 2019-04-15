@@ -274,6 +274,23 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 		return null;
 	}
 
+    public void RateLevel(int rating)
+    {   
+        int lSystemId = LevelList.Instance.GetCurrentLevel().lSystem;
+
+        Debug.Log("id: " + lSystemId + "\trating: " + rating);
+
+        /* TODO: Update database by adding the player's rating to the total stars under the given lsystem id
+         * Open connection to database
+         * Query for current stars value for the given id
+         * update current stars value by adding the user's rating to the old value
+         * close connection
+         * (note: this is a temporary solution until we can restructure to open connection once, in order to make it quicker)
+         */
+
+        NextLevel();
+    }
+
 	public void NextLevel() {
 		
 		if(LevelList.Instance.NextLevel() == null)
