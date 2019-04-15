@@ -38,6 +38,13 @@ public class ABLevelSelect : ABMenu {
 	// Use this for initialization
 	void Start () {
 
+        /* TODO: 
+         * Load L Systems
+         * Generate Levels from L Systems into the StreamingAssets/levels directory (should be a constant here somewhere...)
+         * Be sure to generate them in a random order to avoid bias
+         * Set filemode to overwrite the file if it already exists
+         */
+
 		// Load levels in the resources folder
 		TextAsset []levelsData = Resources.LoadAll<TextAsset>(ABConstants.DEFAULT_LEVELS_FOLDER);
 
@@ -74,7 +81,7 @@ public class ABLevelSelect : ABMenu {
 
 		int j = 0;
 
-		for(int i = 0; i < allXmlFiles.Length; i++) {
+        /*for(int i = 0; i < allXmlFiles.Length; i++) {
 
 			GameObject obj = Instantiate (_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
 			obj.transform.SetParent(_canvas.transform);
@@ -97,6 +104,20 @@ public class ABLevelSelect : ABMenu {
 
 			if ((i + 1) % _lines == 0)
 				j--;
-		}
-	}
+		}*/
+
+        // Jump immediately into level 1
+        GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
+        obj.transform.SetParent(_canvas.transform);
+
+        Vector2 pos = _startPos + new Vector2((0 % _lines) * _buttonSize.x, j * _buttonSize.y);
+        obj.transform.position = pos;
+
+        Debug.Log(obj.transform.position);
+
+        ABLevelSelector sel = obj.AddComponent<ABLevelSelector>();
+        sel.LevelIndex = 0;
+
+        LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+    }
 }

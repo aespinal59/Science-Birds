@@ -108,6 +108,8 @@ public struct SlingData {
 
 public class ABLevel 
 {
+    public int lSystem;
+
 	public int width;
 
 	public CameraData camera;
@@ -122,6 +124,8 @@ public class ABLevel
 	public static readonly int BIRDS_MAX_AMOUNT = 5;
 
 	public ABLevel() {
+
+        lSystem = -1;
 
 		width = 1;
 
