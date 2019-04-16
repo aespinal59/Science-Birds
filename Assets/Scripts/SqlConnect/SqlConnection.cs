@@ -14,7 +14,7 @@ public class SqlConnection
         string hash = Md5Sum(LSystemId.ToString() + rating.ToString() + secretKey);
 
         string post_url = addRatingURL + "LSystemId=" + LSystemId + "&rating=" + rating + "&hash=" + hash;
-        Debug.Log(post_url + "," + hash);
+        Debug.Log(post_url);
         // Post the URL to the site and create a download object to get the result.
         UnityWebRequest rating_post = new UnityWebRequest(post_url);
         yield return rating_post; // Wait until the download is done
