@@ -287,7 +287,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
          * (note: this is a temporary solution until we can restructure to open connection once, in order to make it quicker)
          */
         SqlConnection sql = new SqlConnection();
-        sql.PostRating(lSystemId, rating);
+        StartCoroutine(sql.PostRating(lSystemId, rating));
 
         NextLevel();
     }

@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 public class SqlConnection 
 {
     private string secretKey = "aiingames"; // Edit this value and make sure it's the same as the one stored on the server
-    public string addRatingURL = "https://hispid-compounds.000webhostapp.com/php/addrating.php?"; //be sure to add a ? to your url
+    public string addRatingURL = "https://hispid-compounds.000webhostapp.com/php/AddRating.php?"; //be sure to add a ? to your url
     
     // remember to use StartCoroutine when calling this function!
     public IEnumerator PostRating(int LSystemId, int rating)
@@ -14,7 +14,7 @@ public class SqlConnection
         string hash = Md5Sum(LSystemId.ToString() + rating.ToString() + secretKey);
 
         string post_url = addRatingURL + "LSystemId=" + LSystemId + "&rating=" + rating + "&hash=" + hash;
-
+        Debug.Log(post_url + "," + hash);
         // Post the URL to the site and create a download object to get the result.
         UnityWebRequest rating_post = new UnityWebRequest(post_url);
         yield return rating_post; // Wait until the download is done
