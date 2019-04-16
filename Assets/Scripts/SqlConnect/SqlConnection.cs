@@ -17,7 +17,7 @@ public class SqlConnection
         Debug.Log(post_url);
         // Post the URL to the site and create a download object to get the result.
         UnityWebRequest rating_post = new UnityWebRequest(post_url);
-        yield return rating_post; // Wait until the download is done
+        yield return rating_post.SendWebRequest(); // Wait until the download is done
 
         if (rating_post.error != null)
         {
