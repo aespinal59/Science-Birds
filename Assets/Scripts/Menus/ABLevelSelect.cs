@@ -28,6 +28,7 @@ public class ABLevelSelect : ABMenu {
 	public int _lines = 5;
 
 	public GameObject _levelSelector;
+    public GameObject _ratingStar;
 	public GameObject _canvas;
 
 	public Vector2 _startPos;
@@ -35,16 +36,35 @@ public class ABLevelSelect : ABMenu {
 
 	private int _clickedButton;
 
-	// Use this for initialization
-	void Start () {
+    public void GenerateNewLevels()
+    {
+        GenerateXMLs();
+        RatingSystem.StartGenerating();
+        ABLevelSelector sel = gameObject.AddComponent<ABLevelSelector>();
+        sel.LevelIndex = 0;
 
+        LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+    }
+
+    public void GenerateXMLs()
+    {
         /* TODO: 
          * Load L Systems
          * Generate Levels from L Systems into the StreamingAssets/levels directory (should be a constant here somewhere...)
          * Be sure to generate them in a random order to avoid bias
          * Set filemode to overwrite the file if it already exists
          */
+    }
 
+    public void SubmitRatings()
+    {
+        RatingSystem.SubmitRatings();
+        GenerateNewLevels();
+
+    }
+
+    // Use this for initialization
+    void Start () {
 		// Load levels in the resources folder
 		TextAsset []levelsData = Resources.LoadAll<TextAsset>(ABConstants.DEFAULT_LEVELS_FOLDER);
 
@@ -81,43 +101,62 @@ public class ABLevelSelect : ABMenu {
 
 		int j = 0;
 
-        /*for(int i = 0; i < allXmlFiles.Length; i++) {
+        //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
+        if (RatingSystem.levelSprites.Count > 0)
+        {
+            RatingSystem.EndGenerating();
+            for (int i = 0; i < allXmlFiles.Length; i++)
+            {
 
-			GameObject obj = Instantiate (_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
-			obj.transform.SetParent(_canvas.transform);
+                GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
+                obj.GetComponent<Image>().sprite = RatingSystem.levelSprites[i];
+                
+                obj.transform.SetParent(_canvas.transform);
 
-			Vector2 pos = _startPos + new Vector2 ((i % _lines) * _buttonSize.x, j * _buttonSize.y);
-			obj.transform.position = pos;
+                Vector2 pos = _startPos + new Vector2((i % _lines) * _buttonSize.x, j * _buttonSize.y);
+                obj.transform.position = pos;
 
-			Debug.Log(obj.transform.position);
+                //Debug.Log(obj.transform.position);
 
-			ABLevelSelector sel = obj.AddComponent<ABLevelSelector> ();
-			sel.LevelIndex = i;
+                ABLevelSelector sel = obj.AddComponent<ABLevelSelector>();
+                sel.LevelIndex = i;
 
-			Button selectButton = obj.GetComponent<Button> ();
+                Button selectButton = obj.GetComponent<Button>();
 
-			selectButton.onClick.AddListener (delegate {
-				LoadNextScene("GameWorld", true, sel.UpdateLevelList); });
+                selectButton.onClick.AddListener(delegate
+                {
+                    LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+                });
 
-			Text selectText = selectButton.GetComponentInChildren<Text> ();
-			selectText.text = "" + (i + 1);
+                Text selectText = selectButton.GetComponentInChildren<Text>();
+                selectText.text = "";// + (i + 1);
 
-			if ((i + 1) % _lines == 0)
-				j--;
-		}*/
+                // create rating button
+                GameObject star = Instantiate(_ratingStar, Vector2.zero, Quaternion.identity) as GameObject;
+                star.transform.SetParent(_canvas.transform);
+                star.transform.position = pos + new Vector2(-200, 90);
 
-        // Jump immediately into level 1
-        GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
-        obj.transform.SetParent(_canvas.transform);
+                if (RatingSystem.pressedButtons[i])
+                {
+                    star.GetComponent<Image>().color = Color.yellow;
+                }
+                else
+                {
+                    star.GetComponent<Image>().color = Color.black;
+                }
+                star.GetComponent<Button>().onClick.AddListener(delegate
+                {
+                    RatingSystem.RateLevel(sel.LevelIndex, star);
+                    //LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+                });
 
-        Vector2 pos = _startPos + new Vector2((0 % _lines) * _buttonSize.x, j * _buttonSize.y);
-        obj.transform.position = pos;
-
-        Debug.Log(obj.transform.position);
-
-        ABLevelSelector sel = obj.AddComponent<ABLevelSelector>();
-        sel.LevelIndex = 0;
-
-        LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+                if ((i + 1) % _lines == 0)
+                    j--;
+            }
+        }
+        else
+        {
+            GenerateNewLevels();
+        }
     }
 }

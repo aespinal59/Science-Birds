@@ -58,7 +58,10 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 	public int BlocksAtStart { get { return _blocksAtStart; } }
 
 	public ABGameplayCamera GameplayCam { get; set; }
-	public float LevelWidth  { get; set; }
+    public ABGameplayCamera HideViewCam { get; set; }
+    public GameObject hudObject;
+
+    public float LevelWidth  { get; set; }
 	public float LevelHeight { get; set; }
 		
 	// Game world properties
@@ -82,12 +85,24 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 		_levelClearedBanner.gameObject.SetActive(false);
 
 		GameplayCam = GameObject.Find ("Camera").GetComponent<ABGameplayCamera>();
+		HideViewCam = GameObject.Find ("HideLevelCamera").GetComponent<ABGameplayCamera>();
 	}
 
 	// Use this for initialization
 	void Start () {
-		
-		_pigs = new List<ABPig>();
+
+        if (RatingSystem.IsGenerating)
+        {
+            HideViewCam.GetCamera().enabled = true;
+            hudObject.SetActive(false);
+        }
+        else
+        {
+            HideViewCam.GetCamera().enabled = false;
+            hudObject.SetActive(true);
+        }
+
+        _pigs = new List<ABPig>();
 		_birds = new List<ABBird>();
 		_birdTrajectory = new List<ABParticle>();
 
@@ -231,12 +246,43 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
 	// Update is called once per frame
 	void Update () {
-		
-		// Check if birds was trown, if it died and swap them when needed
-		ManageBirds();
+        if (RatingSystem.IsGenerating)
+        {
+            //Debug.Log(System.DateTime.Now.ToString() + "\tStability: " + GetLevelStability());
+            // Wait until level is stable, then take screenshot
+            if (IsLevelStable())
+            {
+                Camera camera = GameplayCam.GetCamera();
+                int resWidth = camera.pixelWidth;
+                int resHeight = camera.pixelHeight;
+                RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
+                camera.targetTexture = rt;
+                Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
+                camera.Render();
+                RenderTexture.active = rt;
+                screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+                screenShot.Apply();
+                camera.targetTexture = null;
+                RenderTexture.active = null; // JC: added to avoid errors
+                Destroy(rt);
+
+                // save sprite
+                Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
+                RatingSystem.AddLevel(levelSprite);
+                //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
+
+                // go to next level
+                NextLevel();
+            }
+        }
+        else
+        {
+            // Check if birds was trown, if it died and swap them when needed
+            ManageBirds();
+        }
 	}
-	
-	public bool IsObjectOutOfWorld(Transform abGameObject, Collider2D abCollider) {
+
+    public bool IsObjectOutOfWorld(Transform abGameObject, Collider2D abCollider) {
 		
 		Vector2 halfSize = abCollider.bounds.size/2f;
 	
@@ -278,7 +324,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
     {   
         int lSystemId = LevelList.Instance.GetCurrentLevel().lSystem;
 
-        Debug.Log("id: " + lSystemId + "\trating: " + rating);
+        //Debug.Log("id: " + lSystemId + "\trating: " + rating);
 
         /* TODO: Update database by adding the player's rating to the total stars under the given lsystem id
          * Open connection to database
@@ -294,9 +340,9 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
 	public void NextLevel() {
 		
-		if(LevelList.Instance.NextLevel() == null)
-
-			ABSceneManager.Instance.LoadScene("MainMenu");
+		//if(LevelList.Instance.NextLevel() == null)
+        if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null)
+			ABSceneManager.Instance.LoadScene("LevelSelectMenu");
 		else
 			ABSceneManager.Instance.LoadScene(SceneManager.GetActiveScene().name);
 	}

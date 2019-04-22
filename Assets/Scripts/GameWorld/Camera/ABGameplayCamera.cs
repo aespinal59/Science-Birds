@@ -72,6 +72,8 @@ public class ABGameplayCamera : MonoBehaviour {
 		_isDraging = false;
 	}
 
+    public Camera GetCamera() { return _camera; }
+
 	void FollowTarget(Vector3 targetPosition)
 	{
 		Vector3 cameraPos = transform.position;

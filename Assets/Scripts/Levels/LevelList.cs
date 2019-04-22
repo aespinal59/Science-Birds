@@ -73,4 +73,9 @@ public class LevelList : ABSingleton<LevelList> {
 
 		return level;
 	}
+
+    public ABLevel GetLevel(int index)
+    {
+        return _levels[index];
+    }
 }
