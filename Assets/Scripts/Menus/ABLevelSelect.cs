@@ -36,6 +36,8 @@ public class ABLevelSelect : ABMenu {
 
 	private int _clickedButton;
 
+    public Camera _camera;
+
     public void GenerateNewLevels()
     {
         GenerateXMLs();
@@ -111,9 +113,13 @@ public class ABLevelSelect : ABMenu {
                 GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
                 obj.GetComponent<Image>().sprite = RatingSystem.levelSprites[i];
                 
-                obj.transform.SetParent(_canvas.transform);
+                obj.transform.SetParent(_canvas.transform, false);
+                obj.transform.localPosition = Vector3.zero;
+                obj.transform.localScale = new Vector3(0.16f, 0.16f, 1f);
 
-                Vector2 pos = _startPos + new Vector2((i % _lines) * _buttonSize.x, j * _buttonSize.y);
+                //Vector2 pos = _startPos + new Vector2((i % _lines) * _buttonSize.x, j * _buttonSize.y);
+
+                Vector2 pos = _startPos + new Vector2((i % _lines) * (_camera.scaledPixelWidth / 3.1f), j * (_camera.scaledPixelHeight / 3.1f));
                 obj.transform.position = pos;
 
                 //Debug.Log(obj.transform.position);
@@ -133,8 +139,11 @@ public class ABLevelSelect : ABMenu {
 
                 // create rating button
                 GameObject star = Instantiate(_ratingStar, Vector2.zero, Quaternion.identity) as GameObject;
-                star.transform.SetParent(_canvas.transform);
-                star.transform.position = pos + new Vector2(-200, 90);
+                star.transform.SetParent(_canvas.transform, false);
+                star.transform.localPosition = Vector3.zero;
+                star.transform.localScale = new Vector3(0.8f, 0.8f, 1f);
+
+                star.transform.position = pos + new Vector2(-_camera.scaledPixelWidth / 8f, _camera.scaledPixelHeight / 10f);
 
                 if (RatingSystem.pressedButtons[i])
                 {
