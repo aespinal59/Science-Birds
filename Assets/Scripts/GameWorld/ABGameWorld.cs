@@ -72,6 +72,8 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
 	public AudioClip  []_clips;
 
+    private float stabilityCounter;
+
 	void Awake() {
 
 		_blocksTransform = GameObject.Find ("Blocks").transform;
@@ -91,10 +93,12 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 	// Use this for initialization
 	void Start () {
 
+        //_isSimulation = RatingSystem.IsGenerating;
         if (RatingSystem.IsGenerating)
         {
             HideViewCam.GetCamera().enabled = true;
             hudObject.SetActive(false);
+            stabilityCounter = 0.3f;
         }
         else
         {
@@ -250,7 +254,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         {
             //Debug.Log(System.DateTime.Now.ToString() + "\tStability: " + GetLevelStability());
             // Wait until level is stable, then take screenshot
-            if (IsLevelStable())
+            if (stabilityCounter <= 0f && IsLevelStable())
             {
                 Camera camera = GameplayCam.GetCamera();
                 int resWidth = camera.pixelWidth;
@@ -273,6 +277,10 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
                 // go to next level
                 NextLevel();
+            }
+            else
+            {
+                stabilityCounter -= Time.deltaTime;
             }
         }
         else

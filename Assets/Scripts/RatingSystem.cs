@@ -23,6 +23,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void StartGenerating()
     {
+        AudioListener.volume = 0f;
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Start: " + RatingSystem.levelSprites.Count);
         isGenerating = true;
         levelSprites = new List<Sprite>();
@@ -32,6 +33,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void EndGenerating()
     {
+        AudioListener.volume = 0.1f;
         isGenerating = false;
         Time.timeScale = 1f;
     }

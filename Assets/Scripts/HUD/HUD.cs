@@ -231,9 +231,11 @@ public class HUD : ABSingleton<HUD> {
 	}
 
 	public void AddScore(uint score) {
-		
-		_totalScore += score;
-		_scoreDisplay.GetComponent<Text>().text = _totalScore.ToString();
+        if (!RatingSystem.IsGenerating)
+        {
+            _totalScore += score;
+            _scoreDisplay.GetComponent<Text>().text = _totalScore.ToString();
+        }
 	}
 
 	public uint GetScore() {
