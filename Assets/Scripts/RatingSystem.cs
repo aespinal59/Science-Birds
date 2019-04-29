@@ -9,29 +9,40 @@ public class RatingSystem : MonoBehaviour
     private static bool isGenerating = false;
     public static bool IsGenerating => isGenerating;
 
-    public static List<Sprite> levelSprites;
-    public static List<bool> pressedButtons;
+    public static int CurrentLSystemIndex = -1; // -1 means you are on the main Level Select Menu, 0-5 means displaying that corresponding LSystem's levels
+
+    public static List<LSystem> lSystems;
+    public static List<List<Sprite>> levelSprites;
+    public static List<List<bool>> pressedButtons;
 
     private static readonly float TIME_SCALE_FOR_GENERATION = 10f;
+    public static readonly int MAX_LEVELS = 6;
 
     void Awake()
     {
-        levelSprites = new List<Sprite>();
-        pressedButtons = new List<bool>();
+        lSystems = new List<LSystem>();
+        levelSprites = new List<List<Sprite>>();
+        pressedButtons = new List<List<bool>>();
+        for(int i = 0; i < MAX_LEVELS; ++i)
+        {
+            levelSprites.Add(new List<Sprite>());
+            pressedButtons.Add(new List<bool>());
+        }
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Init: " + RatingSystem.levelSprites.Count);
     }
 
-    public static void StartGenerating()
+    public static void StartGeneratingScreenshots(int lSystemIndex)
     {
         AudioListener.volume = 0f;
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Start: " + RatingSystem.levelSprites.Count);
         isGenerating = true;
-        levelSprites = new List<Sprite>();
-        pressedButtons = new List<bool>();
+        CurrentLSystemIndex = lSystemIndex;
+        levelSprites[lSystemIndex].Clear();
+        pressedButtons[lSystemIndex].Clear();
         Time.timeScale = TIME_SCALE_FOR_GENERATION;
     }
 
-    public static void EndGenerating()
+    public static void EndGeneratingScreenshots()
     {
         AudioListener.volume = 0.1f;
         isGenerating = false;
@@ -40,15 +51,15 @@ public class RatingSystem : MonoBehaviour
 
     public static void AddLevel(Sprite level)
     {
-        levelSprites.Add(level);
-        pressedButtons.Add(false);
+        levelSprites[CurrentLSystemIndex].Add(level);
+        pressedButtons[CurrentLSystemIndex].Add(false);
     }
 
     public static void RateLevel(int i, GameObject star)
     {
-        Debug.Log("pressing " + i);
-        pressedButtons[i] = !pressedButtons[i];
-        if (pressedButtons[i])
+        Debug.Log("pressing " + (i % MAX_LEVELS));
+        pressedButtons[CurrentLSystemIndex][i % MAX_LEVELS] = !pressedButtons[CurrentLSystemIndex][i % MAX_LEVELS];
+        if (pressedButtons[CurrentLSystemIndex][i % MAX_LEVELS])
         {
             star.GetComponent<Image>().color = Color.yellow;
         }
@@ -62,11 +73,11 @@ public class RatingSystem : MonoBehaviour
     {
         Dictionary<int, int> ratings = new Dictionary<int, int>();
 
-        for (int i = 0; i < pressedButtons.Count; ++i)
+        for (int i = 0; i < pressedButtons[CurrentLSystemIndex].Count; ++i)
         {
-            if (pressedButtons[i])
+            if (pressedButtons[CurrentLSystemIndex][i])
             {
-                int lSystem = LevelList.Instance.GetLevel(i).lSystem;
+                int lSystem = LevelList.Instance.GetLevel(CurrentLSystemIndex * MAX_LEVELS + i).lSystem;
                 if (ratings.ContainsKey(lSystem))
                     ratings[lSystem] += 1;
                 else

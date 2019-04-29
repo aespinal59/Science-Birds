@@ -7,7 +7,7 @@ using UnityEngine;
 //  Block coordinates (x, y) indicate the center of the block.
 //  Floor is at y = -3.50 . 
 
-class LSystem
+public class LSystem
 {
     private Dictionary<string, Tuple<List<string>, List<double>>> rules;
 

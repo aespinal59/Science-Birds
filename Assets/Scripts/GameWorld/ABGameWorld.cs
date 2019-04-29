@@ -347,12 +347,19 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
     }
 
 	public void NextLevel() {
-		
-		//if(LevelList.Instance.NextLevel() == null)
-        if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null)
-			ABSceneManager.Instance.LoadScene("LevelSelectMenu");
-		else
-			ABSceneManager.Instance.LoadScene(SceneManager.GetActiveScene().name);
+
+        //if(LevelList.Instance.NextLevel() == null)
+        //Debug.Log(LevelList.Instance.CurrentIndex + " >= " + ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS - 1));
+        if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null || (LevelList.Instance.CurrentIndex >= ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS)))
+        {
+            Debug.Log("Done");
+            ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+        }
+        else
+        {
+            Debug.Log("going to the next one");
+            ABSceneManager.Instance.LoadScene(SceneManager.GetActiveScene().name);
+        }
 	}
 
 	public void ResetLevel() {

@@ -21,7 +21,9 @@
 using UnityEngine.UI;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class ABLevelSelect : ABMenu {
 
@@ -38,41 +40,63 @@ public class ABLevelSelect : ABMenu {
 
     public Camera _camera;
 
-    public void GenerateNewLevels()
+    public GameObject lSystemButtons;
+    public GameObject levelButtons;
+    private List<GameObject> tempLevelButtons;
+
+
+    public void InitializeLSystems()
     {
-        GenerateXMLs();
-        RatingSystem.StartGenerating();
+        /* TODO: 
+         * populate RatingSystem.lSystems with 6 LSystems
+         */ 
+
+        for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
+        {
+            GenerateNewLevels(i);
+        }
+    }
+
+    public void LoadScreenshots(int lSystemIndex)
+    {
+        RatingSystem.StartGeneratingScreenshots(lSystemIndex);
         ABLevelSelector sel = gameObject.AddComponent<ABLevelSelector>();
-        sel.LevelIndex = 0;
+        sel.LevelIndex = lSystemIndex * RatingSystem.MAX_LEVELS;
 
         LoadNextScene("GameWorld", true, sel.UpdateLevelList);
     }
 
-    public void GenerateXMLs()
+    public void GenerateXML(int lSystemIndex, string filename)
     {
         /* TODO: 
-         * Load L Systems
-         * Generate Levels from L Systems into the StreamingAssets/levels directory (should be a constant here somewhere...)
-         * Be sure to generate them in a random order to avoid bias
+         * Generate Level from L System into the resources/levels directory (should be a constant here somewhere...)
          * Set filemode to overwrite the file if it already exists
          */
+    }
+
+    public void GenerateNewLevels(int lSystemIndex)
+    {
+        for (int i = 0; i < RatingSystem.MAX_LEVELS; ++i)
+        {
+            GenerateXML(lSystemIndex, String.Format("level-{0:D2}.xml", lSystemIndex * RatingSystem.MAX_LEVELS + i));
+        }
     }
 
     public void SubmitRatings()
     {
         RatingSystem.SubmitRatings();
-        GenerateNewLevels();
+        GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
 
     }
 
-    // Use this for initialization
-    void Start () {
-		// Load levels in the resources folder
-		TextAsset []levelsData = Resources.LoadAll<TextAsset>(ABConstants.DEFAULT_LEVELS_FOLDER);
+    public string[] loadXMLs()
+    {
+        // Load levels in the resources folder
+        TextAsset[] levelsData = Resources.LoadAll<TextAsset>(ABConstants.DEFAULT_LEVELS_FOLDER);
 
-		string[] resourcesXml = new string[levelsData.Length];
-		for (int i = 0; i < levelsData.Length; i++)
-			resourcesXml [i] = levelsData[i].text;
+        string[] resourcesXml = new string[levelsData.Length];
+        for (int i = 0; i < levelsData.Length; i++)
+            resourcesXml[i] = levelsData[i].text;
 
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -81,38 +105,60 @@ public class ABLevelSelect : ABMenu {
 		string[] streamingXml = new string[0];
 
 #else
-		// Load levels in the streaming folder
-		string   levelsPath = Application.dataPath + ABConstants.CUSTOM_LEVELS_FOLDER;
-		string[] levelFiles = Directory.GetFiles (levelsPath, "*.xml");
+        // Load levels in the streaming folder
+        string levelsPath = Application.dataPath + ABConstants.CUSTOM_LEVELS_FOLDER;
+        string[] levelFiles = Directory.GetFiles(levelsPath, "*.xml");
 
-		string[] streamingXml = new string[levelFiles.Length];
-		for (int i = 0; i < levelFiles.Length; i++)
-			streamingXml [i] = File.ReadAllText (levelFiles [i]);
+        string[] streamingXml = new string[levelFiles.Length];
+        for (int i = 0; i < levelFiles.Length; i++)
+            streamingXml[i] = File.ReadAllText(levelFiles[i]);
 
 #endif
 
-		// Combine the two sources of levels
-		string[] allXmlFiles = new string[resourcesXml.Length + streamingXml.Length];
-		resourcesXml.CopyTo(allXmlFiles, 0);
-		streamingXml.CopyTo(allXmlFiles, resourcesXml.Length);
+        // Combine the two sources of levels
+        string[] allXmlFiles = new string[resourcesXml.Length + streamingXml.Length];
+        resourcesXml.CopyTo(allXmlFiles, 0);
+        streamingXml.CopyTo(allXmlFiles, resourcesXml.Length);
 
-		_startPos.x = Mathf.Clamp (_startPos.x, 0, 1f) * Screen.width;
-		_startPos.y = Mathf.Clamp (_startPos.y, 0, 1f) * Screen.height;
+        _startPos.x = Mathf.Clamp(_startPos.x, 0, 1f) * Screen.width;
+        _startPos.y = Mathf.Clamp(_startPos.y, 0, 1f) * Screen.height;
 
-		LevelList.Instance.LoadLevelsFromSource (allXmlFiles);
+        LevelList.Instance.LoadLevelsFromSource(allXmlFiles);
 
-		int j = 0;
+        return allXmlFiles;
+    }
 
-        //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
-        if (RatingSystem.levelSprites.Count > 0)
+    public void DisplayLSystems()
+    {
+        lSystemButtons.SetActive(true);
+        levelButtons.SetActive(false);
+
+        foreach (GameObject obj in tempLevelButtons)
         {
-            RatingSystem.EndGenerating();
-            for (int i = 0; i < allXmlFiles.Length; i++)
+            Destroy(obj);
+        }
+    }
+
+    public void DisplayLevels(int lSystemIndex)
+    {
+        if (RatingSystem.levelSprites[lSystemIndex].Count <= 0)
+        {
+            LoadScreenshots(lSystemIndex);
+        }
+        else
+        {
+            lSystemButtons.SetActive(false);
+            levelButtons.SetActive(true);
+
+            RatingSystem.CurrentLSystemIndex = lSystemIndex;
+            int j = 0;
+            RatingSystem.EndGeneratingScreenshots();
+            for (int i = 0; i < RatingSystem.MAX_LEVELS; i++)
             {
 
                 GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
-                obj.GetComponent<Image>().sprite = RatingSystem.levelSprites[i];
-                
+                obj.GetComponent<Image>().sprite = RatingSystem.levelSprites[RatingSystem.CurrentLSystemIndex][i];
+
                 obj.transform.SetParent(_canvas.transform, false);
                 obj.transform.localPosition = Vector3.zero;
                 obj.transform.localScale = new Vector3(0.16f, 0.16f, 1f);
@@ -125,7 +171,7 @@ public class ABLevelSelect : ABMenu {
                 //Debug.Log(obj.transform.position);
 
                 ABLevelSelector sel = obj.AddComponent<ABLevelSelector>();
-                sel.LevelIndex = i;
+                sel.LevelIndex = lSystemIndex * RatingSystem.MAX_LEVELS + i;
 
                 Button selectButton = obj.GetComponent<Button>();
 
@@ -145,7 +191,7 @@ public class ABLevelSelect : ABMenu {
 
                 star.transform.position = pos + new Vector2(-_camera.scaledPixelWidth / 8f, _camera.scaledPixelHeight / 10f);
 
-                if (RatingSystem.pressedButtons[i])
+                if (RatingSystem.pressedButtons[RatingSystem.CurrentLSystemIndex][i])
                 {
                     star.GetComponent<Image>().color = Color.yellow;
                 }
@@ -156,16 +202,33 @@ public class ABLevelSelect : ABMenu {
                 star.GetComponent<Button>().onClick.AddListener(delegate
                 {
                     RatingSystem.RateLevel(sel.LevelIndex, star);
-                    //LoadNextScene("GameWorld", true, sel.UpdateLevelList);
-                });
+                //LoadNextScene("GameWorld", true, sel.UpdateLevelList);
+            });
+
+                tempLevelButtons.Add(obj);
+                tempLevelButtons.Add(star);
 
                 if ((i + 1) % _lines == 0)
                     j--;
             }
         }
-        else
+    }
+
+    // Use this for initialization
+    void Start () {
+
+        tempLevelButtons = new List<GameObject>();
+
+        if (RatingSystem.lSystems.Count <= 0)
         {
-            GenerateNewLevels();
+            InitializeLSystems();
+        }
+
+        loadXMLs();
+
+        if (RatingSystem.CurrentLSystemIndex >= 0)
+        {
+            DisplayLevels(RatingSystem.CurrentLSystemIndex);
         }
     }
 }
