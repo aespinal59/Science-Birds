@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-
-//  TODO: InitLSystems(), GenerateLevel()
 class StringToStructure
 {
-    static string Xmlify(string blockType, string material, double x, double y, double rot)
+    private static string Xmlify(string blockType, string material, double x, double y, double rot)
     {
         return String.Format(
             "<Block type=\"{0}\" material=\"{1}\" x=\"{2}\" y=\"{3}\" rotation=\"{4}\" />\n",
@@ -17,7 +15,7 @@ class StringToStructure
             rot.ToString());
     }
 
-    static void StartFile(string path)
+    public static void StartFile(string path)
     {
         string text = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n" +
             "<Level width =\"2\">\n" +
@@ -32,14 +30,14 @@ class StringToStructure
         File.WriteAllText(path, text);
     }
 
-    static void EndFile(string path)
+    public static void EndFile(string path)
     {
         string text = "</GameObjects>\n" +
             "</Level>\n";
         File.AppendAllText(path, text);
     }
 
-    static void WriteBlocksToFile(LSystem l, string path)
+    public static void WriteBlocksToFile(LSystem l, string path)
     {
         string xmlBlocks = "";
         for (int rowIndex = 0; rowIndex < l.iterations.Count; rowIndex++)
@@ -58,17 +56,18 @@ class StringToStructure
         }
         File.AppendAllText(path, xmlBlocks);
 
-        for (double i = -3; i < 3.10; i += 0.8)
-        {
+#if (false)
+        for (double i = -3; i < 3.10; i += 0.8) {
             string xmlPig = String.Format(
             "<Pig type=\"BasicSmall\" material=\"\" x=\"{0}\" y=\"-3.2\" rotation=\"0\" />\n",
             i);
             File.AppendAllText(path, xmlPig);
         }
+#endif
 
     }
 
-
+#if (false)
     static void Main(string[] args)
     {
         //File path for level xml
@@ -92,6 +91,8 @@ class StringToStructure
 
         LSystem lsystem = new LSystem("4", rules);
 
+        LSystem r = new LSystem(3, 5);
+
         //Iterate through L-system
         lsystem.Iterate(3);
 
@@ -108,4 +109,5 @@ class StringToStructure
 
         Console.ReadKey();
     }
+#endif
 }

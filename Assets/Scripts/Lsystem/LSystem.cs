@@ -1,15 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
-using UnityEngine;
 
 
 //  Block coordinates (x, y) indicate the center of the block.
 //  Floor is at y = -3.50 . 
 
-public class LSystem
+class LSystem
 {
+    //Random number generator
+    private static Random random = new Random();
+    //Change list to tuple.
     private Dictionary<string, Tuple<List<string>, List<double>>> rules;
+
+    public int maxHeight;
 
     public List<string> iterations;
 
@@ -38,7 +42,7 @@ public class LSystem
     //  TODO: fix issue with air blocks and height checks
     public Dictionary<string, string> block_names = new Dictionary<string, string>
     {
-        {"0", "Air"},
+        //{"0", "Air"},
         {"1", "SquareHole"},
         {"2", "RectFat"},
         {"3","RectFat"},
@@ -54,6 +58,7 @@ public class LSystem
         {"D", "RectBig"}
     };
 
+    //Constructor with pre-defined rules & axiom.
     public LSystem(string axiom, Dictionary<string, Tuple<List<string>, List<double>>> r)
     {
         rules = r;
@@ -62,10 +67,94 @@ public class LSystem
 
     }
 
-    //  TODO
-    public void GenerateRandomRules()
+    //Constructor with random rules & axiom.
+    public LSystem(int numRules, int maxWidth)
     {
 
+        //Get random axiom
+        List<string> possibleAxioms = new List<string>(blocks.Keys);
+        string axiom = possibleAxioms[random.Next(0, possibleAxioms.Count)];
+
+        //Initialize LSystem
+        rules = GenerateRandomRules(numRules, maxWidth);
+        iterations = new List<string> { axiom };
+        rowStartCoordinates = new List<double> { };
+    }
+    private List<double> RescaleWeights(List<double> weights)
+    {
+
+        double total = 0;
+
+        List<double> newWeights = new List<double> { };
+
+        foreach (double weight in weights)
+        {
+            total += weight;
+        }
+
+        foreach (double weight in weights)
+        {
+            newWeights.Add(weight / total);
+        }
+
+        return newWeights;
+
+    }
+
+    //  TODO
+    private Dictionary<string, Tuple<List<string>, List<double>>> GenerateRandomRules(int numRules, int maxWidth)
+    {
+        Dictionary<string, Tuple<List<string>, List<double>>> newRules = new Dictionary<string, Tuple<List<string>, List<double>>>();
+        for (int i = 0; i < numRules; i++)
+        {
+            List<string> symbols = new List<string>(blocks.Keys);
+
+            //Get a condition.
+            string condition = symbols[random.Next(symbols.Count)];
+
+            //Get a successor of random width < max width.
+            int succWidth = random.Next(1, maxWidth);
+            string successor = "";
+            for (int s = 0; s < succWidth; s++)
+            {
+                string nextSymbol = symbols[random.Next(symbols.Count)];
+                successor += nextSymbol;
+            }
+
+            //Get a probability.
+            double probability = random.Next(0, 100) / 100;
+
+            //Check if condition already in dictionary.
+            if (newRules.ContainsKey(condition))
+            {
+                //Update existing successors and probabilities for given condition.
+                List<string> newSuccessors = newRules[condition].Item1;
+                List<double> newProbabilities = newRules[condition].Item2;
+
+                newSuccessors.Add(successor);
+                newProbabilities.Add(probability);
+
+                //Rescale probabilities to [0, 1].
+                newProbabilities = RescaleWeights(newProbabilities);
+
+                //Replace old successors and probabilities with new ones.
+                newRules[condition] = new Tuple<List<string>, List<double>>(
+                    new List<string>(newSuccessors),
+                    new List<double>(newProbabilities)
+                );
+            }
+            else
+            {
+                //Add new rules (successor and probability for given condition).
+                newRules[condition] = new Tuple<List<string>, List<double>>(
+                    new List<string> { successor },
+                    new List<double> { probability }
+                );
+            }
+
+        }
+
+        return newRules;
 
     }
 
@@ -84,6 +173,8 @@ public class LSystem
     // Change to iterate certain number of times so that GetStartCoordinates can be used maybe?
     public void Iterate(int numIter)
     {
+        iterations = new List<string> { iterations[0] };
+
         for (; numIter > 0; numIter--)
         {
 
@@ -208,12 +299,24 @@ public class LSystem
                         }
                     }
 
-                    blockCoordinates[rowIndex][colIndex].Add(maxHeight + blocks[currRow[colIndex].ToString()][1]);
+                    blockCoordinates[rowIndex][colIndex].Add(maxHeight + blocks[currRow[colIndex].ToString()][1] / 2);
                 }
             }
 
 
         }
+
+    }
+
+    public void GenerateXML(string path, int height)
+    {
+        //Generate the level by iterating.
+        Iterate(height);
+
+        //Write the XML file.
+        StringToStructure.StartFile(path);
+        StringToStructure.WriteBlocksToFile(this, path);
+        StringToStructure.EndFile(path);
 
     }
 
@@ -232,11 +335,12 @@ public class LSystem
     class WSelect
     {
 
+        private static Random random = new Random();
         public string Select(List<string> choices, List<double> weights)
         {
             double total = 100.0;
             double count = 0.0;
-            double winner = UnityEngine.Random.Range(0, 100);
+            double winner = random.Next(0, 100);
 
             for (int i = 0; i < choices.Count; i++)
             {
