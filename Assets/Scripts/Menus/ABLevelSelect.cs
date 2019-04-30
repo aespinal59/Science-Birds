@@ -80,6 +80,7 @@ public class ABLevelSelect : ABMenu {
          * Set filemode to overwrite the file if it already exists
          */
 
+        filename = Path.Combine(new string[2] { "ABConstants.DEFAULT_LEVELS_FOLDER", filename });
         //  Generates a structure of height 5
         RatingSystem.lSystems[lSystemIndex].GenerateXML(filename, 5);
     }
