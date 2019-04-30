@@ -60,7 +60,7 @@ public class ABLevelSelect : ABMenu {
 
         for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
         {
-            GenerateNewLevels(i);
+            RatingSystem.GenerateXMLs(i, 5); // hardcoded height
         }
     }
 
@@ -73,34 +73,36 @@ public class ABLevelSelect : ABMenu {
         LoadNextScene("GameWorld", true, sel.UpdateLevelList);
     }
 
-    public void GenerateXML(int lSystemIndex, string filename)
-    {
-        /* TODO: 
-         * Generate Level from L System into the resources/levels directory (should be a constant here somewhere...)
-         * Set filemode to overwrite the file if it already exists
-         */
+    //public void GenerateXML(int lSystemIndex, string filename)
+    //{
+    //    /* TODO: 
+    //     * Generate Level from L System into the resources/levels directory (should be a constant here somewhere...)
+    //     * Set filemode to overwrite the file if it already exists
+    //     */
 
-        filename = Path.Combine(ABConstants.DEFAULT_LEVELS_FOLDER, filename);
-        //  Generates a structure of height 5
-        RatingSystem.lSystems[lSystemIndex].GenerateXML(filename, 5);
-    }
+    //    //filename = Path.Combine(ABConstants.DEFAULT_LEVELS_FOLDER, filename);
+    //    //  Generates a structure of height 5
+    //    RatingSystem.lSystems[lSystemIndex].GenerateXMLs(5);
+    //}
 
-    public void GenerateNewLevels(int lSystemIndex)
-    {
-        for (int i = 0; i < RatingSystem.MAX_LEVELS; ++i)
-        {
-            GenerateXML(lSystemIndex, String.Format("level-{0:D2}.xml", lSystemIndex * RatingSystem.MAX_LEVELS + i));
-        }
-    }
+    //public void GenerateNewLevels(int lSystemIndex)
+    //{
+    //    for (int i = 0; i < RatingSystem.MAX_LEVELS; ++i)
+    //    {
+    //        GenerateXML(lSystemIndex, String.Format("level-{0:D2}.xml", lSystemIndex * RatingSystem.MAX_LEVELS + i));
+    //    }
+    //}
 
     public void SubmitRatings()
     {
         RatingSystem.SubmitRatings();
-        GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
+        RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
+        LoadScreenshots(RatingSystem.CurrentLSystemIndex);
+        //GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
 
     }
 
-    public string[] loadXMLs()
+    public string[] loadXMLsOld()
     {
         // Load levels in the resources folder
         TextAsset[] levelsData = Resources.LoadAll<TextAsset>(ABConstants.DEFAULT_LEVELS_FOLDER);
@@ -139,6 +141,26 @@ public class ABLevelSelect : ABMenu {
         return allXmlFiles;
     }
 
+    public string[] loadXMLs()
+    {
+        string[] allXmls = new string[36];
+
+        for (int i = 0; i < 6; ++i)
+        {
+            for (int j = 0; j < RatingSystem.MAX_LEVELS; ++j)
+            {
+                allXmls[i * 6 + j] = RatingSystem.levelData[i][j].levelXML;
+            }
+        }
+
+        _startPos.x = Mathf.Clamp(_startPos.x, 0, 1f) * Screen.width;
+        _startPos.y = Mathf.Clamp(_startPos.y, 0, 1f) * Screen.height;
+
+        LevelList.Instance.LoadLevelsFromSource(allXmls);
+
+        return allXmls;
+    }
+
     public void DisplayLSystems()
     {
         lSystemButtons.SetActive(true);
@@ -152,7 +174,7 @@ public class ABLevelSelect : ABMenu {
 
     public void DisplayLevels(int lSystemIndex)
     {
-        if (RatingSystem.levelSprites[lSystemIndex].Count <= 0)
+        if (RatingSystem.levelData[lSystemIndex][0].levelSprite == null)
         {
             LoadScreenshots(lSystemIndex);
         }
@@ -168,7 +190,7 @@ public class ABLevelSelect : ABMenu {
             {
 
                 GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
-                obj.GetComponent<Image>().sprite = RatingSystem.levelSprites[RatingSystem.CurrentLSystemIndex][i];
+                obj.GetComponent<Image>().sprite = RatingSystem.levelData[RatingSystem.CurrentLSystemIndex][i].levelSprite;
 
                 obj.transform.SetParent(_canvas.transform, false);
                 obj.transform.localPosition = Vector3.zero;
@@ -202,7 +224,7 @@ public class ABLevelSelect : ABMenu {
 
                 star.transform.position = pos + new Vector2(-_camera.scaledPixelWidth / 8f, _camera.scaledPixelHeight / 10f);
 
-                if (RatingSystem.pressedButtons[RatingSystem.CurrentLSystemIndex][i])
+                if (RatingSystem.levelData[RatingSystem.CurrentLSystemIndex][i].pressedButton)
                 {
                     star.GetComponent<Image>().color = Color.yellow;
                 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 
 //  Block coordinates (x, y) indicate the center of the block.
@@ -9,7 +10,7 @@ using System;
 public class LSystem
 {
     //Random number generator
-    private static Random random = new Random();
+    private static System.Random random = new System.Random();
     //Change list to tuple.
     private Dictionary<string, Tuple<List<string>, List<double>>> rules;
 
@@ -229,6 +230,7 @@ public class LSystem
 
             foreach (char symbol in iterations[rowIndex])
             {
+                Debug.Log(symbol.ToString());
                 rowWidth += blocks[symbol.ToString()][0];
             }
 
@@ -308,16 +310,69 @@ public class LSystem
 
     }
 
-    public void GenerateXML(string path, int height)
+    public string GenerateXML(int height)
     {
         //Generate the level by iterating.
         Iterate(height);
 
-        //Write the XML file.
-        StringToStructure.StartFile(path);
-        StringToStructure.WriteBlocksToFile(this, path);
-        StringToStructure.EndFile(path);
+        return StartXML() + BlocksToXML() + EndXML();
 
+        //Write the XML file.
+        //StringToStructure.StartFile(path);
+        //StringToStructure.WriteBlocksToFile(this, path);
+        //StringToStructure.EndFile(path);
+
+    }
+
+    private string StartXML()
+    {
+        return "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n" +
+            "<Level width =\"2\">\n" +
+            "<Camera x=\"0\" y=\"2\" minWidth=\"20\" maxWidth=\"30\">\n" +
+            "<Birds>\n" +
+            "<Bird type=\"BirdRed\"/>\n" +
+            "<Bird type=\"BirdRed\"/>\n" +
+            "<Bird type=\"BirdRed\"/>\n" +
+            "</Birds>\n" +
+            "<Slingshot x=\"-8\" y=\"-2.5\">\n" +
+            "<GameObjects>\n";
+    }
+
+    private string EndXML()
+    {
+        return "</GameObjects>\n" +
+            "</Level>\n";
+    }
+
+    private string BlocksToXML()
+    {
+        string xmlBlocks = "";
+        for (int rowIndex = 0; rowIndex < iterations.Count; rowIndex++)
+        {
+            for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++)
+            {
+                string symbol = iterations[rowIndex][colIndex].ToString();
+                string blockType = block_names[symbol];
+                string material = "wood";
+                double x = blockCoordinates[rowIndex][colIndex][0];
+                double y = blockCoordinates[rowIndex][colIndex][1];
+                //  TODO: include checks for rotation
+                double rotation = 0;
+                xmlBlocks += Xmlify(blockType, material, x, y, rotation);
+            }
+        }
+        return xmlBlocks;
+    }
+
+    private static string Xmlify(string blockType, string material, double x, double y, double rot)
+    {
+        return String.Format(
+            "<Block type=\"{0}\" material=\"{1}\" x=\"{2}\" y=\"{3}\" rotation=\"{4}\" />\n",
+            blockType,
+            material,
+            x.ToString(),
+            y.ToString(),
+            rot.ToString());
     }
 
     public string this[int key]
@@ -335,7 +390,7 @@ public class LSystem
     class WSelect
     {
 
-        private static Random random = new Random();
+        private static System.Random random = new System.Random();
         public string Select(List<string> choices, List<double> weights)
         {
             double total = 100.0;

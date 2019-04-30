@@ -272,7 +272,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
                 // save sprite
                 Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
-                RatingSystem.AddLevel(levelSprite);
+                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite);
                 //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
 
                 // go to next level
@@ -352,12 +352,10 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         //Debug.Log(LevelList.Instance.CurrentIndex + " >= " + ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS - 1));
         if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null || (LevelList.Instance.CurrentIndex >= ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS)))
         {
-            Debug.Log("Done");
             ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         }
         else
         {
-            Debug.Log("going to the next one");
             ABSceneManager.Instance.LoadScene(SceneManager.GetActiveScene().name);
         }
 	}
