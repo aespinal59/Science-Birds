@@ -125,6 +125,7 @@ public class LSystem
             //Get a probability.
             double probability = random.Next(0, 100) / 100;
 
+            //TODO: REMOVE IF STATEMENT, COMBINE TO ONE CASE
             //Check if condition already in dictionary.
             if (newRules.ContainsKey(condition))
             {
@@ -146,10 +147,10 @@ public class LSystem
             }
             else
             {
-                //Add new rules (successor and probability for given condition).
+                //Add new rules (successor and 100% probability for given condition).
                 newRules[condition] = new Tuple<List<string>, List<double>>(
                     new List<string> { successor },
-                    new List<double> { probability }
+                    new List<double> { 1.0 }
                 );
             }
 
@@ -407,12 +408,13 @@ public class LSystem
             for (int i = 0; i < choices.Count; i++)
             {
                 count += weights[i] * total;
-                if (winner <= count)
+                if (winner < count)
                 {
                     return choices[i];
                 }
             }
 
+            Debug.Log("Error: choice was not picked.");
             return choices[0];
         }
     }
