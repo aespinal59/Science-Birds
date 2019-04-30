@@ -49,7 +49,14 @@ public class ABLevelSelect : ABMenu {
     {
         /* TODO: 
          * populate RatingSystem.lSystems with 6 LSystems
-         */ 
+         */
+
+        //  Initialize 6 randomized LSystems, 3 rules each, 
+        //      max size of successor being 5.
+        int numLSystems = 6;
+        for (int i = 0; i < numLSystems; i++) {
+            RatingSystem.lSystems.Add(new LSystem(3, 5));
+        }
 
         for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
         {
@@ -72,6 +79,9 @@ public class ABLevelSelect : ABMenu {
          * Generate Level from L System into the resources/levels directory (should be a constant here somewhere...)
          * Set filemode to overwrite the file if it already exists
          */
+
+        //  Generates a structure of height 5
+        RatingSystem.lSystems[lSystemIndex].GenerateXML(filename, 5);
     }
 
     public void GenerateNewLevels(int lSystemIndex)
