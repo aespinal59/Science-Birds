@@ -6,7 +6,7 @@ using System;
 //  Block coordinates (x, y) indicate the center of the block.
 //  Floor is at y = -3.50 . 
 
-class LSystem
+public class LSystem
 {
     //Random number generator
     private static Random random = new Random();
