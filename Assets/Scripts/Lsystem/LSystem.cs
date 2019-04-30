@@ -197,6 +197,13 @@ public class LSystem
             iterations.Add(newAxiom);
         }
 
+        Debug.Log("-----------------------------------------");
+        foreach (string iteration in iterations)
+        {
+            Debug.Log(iteration);
+        }
+        Debug.Log("-----------------------------------------");
+
         blockCoordinates = new List<List<List<double>>>();
         for (int i = 0; i < iterations.Count; i++)
         {
@@ -400,13 +407,13 @@ public class LSystem
             for (int i = 0; i < choices.Count; i++)
             {
                 count += weights[i] * total;
-                if (winner < count)
+                if (winner <= count)
                 {
                     return choices[i];
                 }
             }
 
-            return "Error: choice was not picked.";
+            return choices[0];
         }
     }
 }
