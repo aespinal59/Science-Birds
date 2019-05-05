@@ -35,6 +35,7 @@ public class RatingSystem : MonoBehaviour
 
     private static readonly float TIME_SCALE_FOR_GENERATION = 10f;
     public static readonly int MAX_LEVELS = 6;
+    public static RatingSystem ratingSystem;
 
     void Awake()
     {
@@ -46,6 +47,8 @@ public class RatingSystem : MonoBehaviour
             levelData.Add(new List<LevelData>());
         }
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Init: " + RatingSystem.levelSprites.Count);
+        ratingSystem = this;
+        DontDestroyOnLoad(this);
     }
 
     public static void GenerateXMLs(int lSystemIndex, int height)
@@ -122,6 +125,8 @@ public class RatingSystem : MonoBehaviour
              * got the lSystem on line 67, as long as you add a value in the ABLevel that represents the seed
              */ 
         }
+
+        ratingSystem.StartCoroutine(SqlConnection.PostRating(null));
     }
 
     public static List<float> GetFitnesses()

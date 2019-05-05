@@ -50,7 +50,7 @@ public class ABLevelSelect : ABMenu {
         /* TODO: 
          * populate RatingSystem.lSystems with 6 LSystems
          */
-
+        StartCoroutine(SqlConnection.GetPopulation());
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
         int numLSystems = 6;
