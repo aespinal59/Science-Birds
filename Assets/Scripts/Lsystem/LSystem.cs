@@ -198,12 +198,12 @@ public class LSystem
             iterations.Add(newAxiom);
         }
 
-        Debug.Log("-----------------------------------------");
-        foreach (string iteration in iterations)
-        {
-            Debug.Log(iteration);
-        }
-        Debug.Log("-----------------------------------------");
+        //Debug.Log("-----------------------------------------");
+        //foreach (string iteration in iterations)
+        //{
+        //    Debug.Log(iteration);
+        //}
+        //Debug.Log("-----------------------------------------");
 
         blockCoordinates = new List<List<List<double>>>();
         for (int i = 0; i < iterations.Count; i++)
@@ -238,7 +238,7 @@ public class LSystem
 
             foreach (char symbol in iterations[rowIndex])
             {
-                Debug.Log(symbol.ToString());
+                //Debug.Log(symbol.ToString());
                 rowWidth += blocks[symbol.ToString()][0];
             }
 

@@ -73,6 +73,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 	public AudioClip  []_clips;
 
     private float stabilityCounter;
+    private float timeToStable;
 
 	void Awake() {
 
@@ -99,6 +100,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
             HideViewCam.GetCamera().enabled = true;
             hudObject.SetActive(false);
             stabilityCounter = 0.3f;
+            timeToStable = 0f;
         }
         else
         {
@@ -272,7 +274,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
                 // save sprite
                 Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
-                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite);
+                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable);
                 //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
 
                 // go to next level
@@ -281,6 +283,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
             else
             {
                 stabilityCounter -= Time.deltaTime;
+                timeToStable += Time.deltaTime;
             }
         }
         else
