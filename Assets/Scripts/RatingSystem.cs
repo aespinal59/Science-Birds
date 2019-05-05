@@ -35,7 +35,7 @@ public class RatingSystem : MonoBehaviour
 
     private static readonly float TIME_SCALE_FOR_GENERATION = 10f;
     public static readonly int MAX_LEVELS = 6;
-    public static RatingSystem ratingSystem;
+
 
     void Awake()
     {
@@ -47,8 +47,6 @@ public class RatingSystem : MonoBehaviour
             levelData.Add(new List<LevelData>());
         }
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Init: " + RatingSystem.levelSprites.Count);
-        ratingSystem = this;
-        DontDestroyOnLoad(this);
     }
 
     public static void GenerateXMLs(int lSystemIndex, int height)
@@ -98,7 +96,7 @@ public class RatingSystem : MonoBehaviour
         }
     }
 
-    public static void SubmitRatings()
+    public static void SubmitRatings(MonoBehaviour script)
     {
         GetFitnesses();
         Dictionary<int, int> ratings = new Dictionary<int, int>();
@@ -126,7 +124,7 @@ public class RatingSystem : MonoBehaviour
              */ 
         }
 
-        ratingSystem.StartCoroutine(SqlConnection.PostRating(null));
+        script.StartCoroutine(SqlConnection.PostRating(null));
     }
 
     public static List<float> GetFitnesses()

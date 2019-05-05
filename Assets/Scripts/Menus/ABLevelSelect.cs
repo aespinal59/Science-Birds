@@ -95,7 +95,7 @@ public class ABLevelSelect : ABMenu {
 
     public void SubmitRatings()
     {
-        RatingSystem.SubmitRatings();
+        RatingSystem.SubmitRatings(this);
         RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
         LoadScreenshots(RatingSystem.CurrentLSystemIndex);
         //GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
