@@ -1,47 +1,115 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SqlConnection 
+public class SqlConnection
 {
-    private string secretKey = "aiingames"; // Edit this value and make sure it's the same as the one stored on the server
-    public string addRatingURL = "https://hispid-compounds.000webhostapp.com/php/AddRating.php?"; //be sure to add a ? to your url
-    
+    static string addRatingURL = "https://hispid-compounds.000webhostapp.com/php/AddRating.php"; //be sure to add a ? to your url
+    static string getPopulationURL = "https://hispid-compounds.000webhostapp.com/php/GetPopulation.php";
+
+    public static int? PopulationId { get; set; }
+    public static int? ParentId { get; set; }
+    public static string hash { get; set; }
+
     // remember to use StartCoroutine when calling this function!
-    public IEnumerator PostRating(int LSystemId, int rating)
+    public static IEnumerator PostRating(LSystemWrapper[] LSystems)
     {
-        string hash = Md5Sum(LSystemId.ToString() + rating.ToString() + secretKey);
+        //string hash = Md5Sum(LSystemId.ToString() + rating.ToString() + secretKey);
 
-        string post_url = addRatingURL + "LSystemId=" + LSystemId + "&rating=" + rating + "&hash=" + hash;
-        Debug.Log(post_url);
+        //string post_url = addRatingURL + "LSystemId=" + LSystemId + "&rating=" + rating + "&hash=" + hash;
+        //WWWForm form = new WWWForm();
+        //form.AddField("hash", hash);
+        //form.AddField("PopulationId", PopulationId?.ToString());
+        //form.AddField("ParentId", ParentId?.ToString());
+        //foreach (var rating in ratings)
+        //{
+        //    form.AddField("lsystem" + rating.Key.ToString(), rating.Value.ToString());
+        //}
+
+        //Debug.Log(post_url);
         // Post the URL to the site and create a download object to get the result.
-        UnityWebRequest rating_post = new UnityWebRequest(post_url);
-        yield return rating_post.SendWebRequest(); // Wait until the download is done
+        //UnityWebRequest post = new UnityWebRequest(addRatingURL);
+        //post.SetRequestHeader("Content-type", "application/json");
 
-        if (rating_post.error != null)
+        PostLSystemHelper helper = new PostLSystemHelper();
+        helper.PopulationId = PopulationId.Value;
+        helper.ParentId = ParentId;
+        helper.Hash = hash;
+        helper.LSystems = LSystems;
+        var jsonString = JsonUtility.ToJson(helper);
+
+        //WWWForm form = new WWWForm();
+        //form.AddField("data", jsonString);
+        //post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
+
+        using (UnityWebRequest post = UnityWebRequest.Post(addRatingURL, jsonString))
         {
-            Debug.Log("There was an error posting the rating: " + rating_post.error);
+            post.SetRequestHeader("Content-Type", "application/json");
+            post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
+            post.uploadHandler.contentType = "application/json";
+            //post.downloadHandler = new DownloadHandlerBuffer();
+            //post.chunkedTransfer = false;
+            yield return post.SendWebRequest();
+
+            if (post.isNetworkError || post.isHttpError)
+            {
+                Debug.LogError(post.error);
+            }
+            else
+            {
+                Debug.Log(post.downloadHandler.text);
+                ParentId = PopulationId;
+            }
         }
     }
 
-    public string Md5Sum(string strToEncrypt)
+    // Get population from MYSQL database
+    public static IEnumerator GetPopulation()
     {
-        System.Text.UTF8Encoding ue = new System.Text.UTF8Encoding();
-        byte[] bytes = ue.GetBytes(strToEncrypt);
+        UnityWebRequest request = new UnityWebRequest(getPopulationURL + (ParentId != null ? "?ParentId=" + ParentId?.ToString() : ""));
+        request.downloadHandler = new DownloadHandlerBuffer();
+        yield return request.SendWebRequest();
 
-        // encrypt bytes
-        System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-        byte[] hashBytes = md5.ComputeHash(bytes);
-
-        // Convert the encrypted bytes back to a string (base 16)
-        string hashString = "";
-
-        for (int i = 0; i < hashBytes.Length; i++)
+        if (request.error != null)
         {
-            hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
+            Debug.LogError("There was an error getting the high score: " + request.error);
         }
-
-        return hashString.PadLeft(32, '0');
+        else
+        {
+            string response = request.downloadHandler.text;
+            //string[] variables = response.Split('|');
+            var JSONObj = JsonUtility.FromJson<Population>(response);
+            PopulationId = JSONObj.PopulationId;
+            hash = JSONObj.Hash;
+            Debug.Log(PopulationId);
+        }
     }
+}
+
+[Serializable]
+public class Population
+{
+    public int PopulationId;
+    public string Hash;
+}
+
+[Serializable]
+public class LSystemWrapper
+{
+    public int PopulationId;
+    public int LSystemId;
+    public int Ranking;
+    public string Axiom;
+    public string Rules;
+}
+
+[Serializable]
+public class PostLSystemHelper
+{
+    public int PopulationId;
+    public string Hash;
+    public int? ParentId;
+    public LSystemWrapper[] LSystems;
 }
