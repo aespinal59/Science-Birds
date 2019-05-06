@@ -24,16 +24,30 @@ public class RatingSystem : MonoBehaviour
 
     }
 
+    public class LSystemRating
+    {
+        public LSystem lSystem;
+        public bool isSelected;
+
+        public LSystemRating(LSystem lSystem)
+        {
+            this.lSystem = lSystem;
+            this.isSelected = false;
+        }
+    }
+
     // determines if levels and screenshots are currently being generated (meaning time should be sped up)
     private static bool isGenerating = false;
     public static bool IsGenerating => isGenerating;
 
-    public static int CurrentLSystemIndex = -1; // -1 means you are on the main Level Select Menu, 0-5 means displaying that corresponding LSystem's levels
+    public static int CurrentLSystemIndex = 0; // -1 means you are on the main Level Select Menu, 0-5 means displaying that corresponding LSystem's levels
 
     public static List<LSystem> lSystems;
+    public static List<bool> isStarred;
     public static List<List<LevelData>> levelData;
 
     private static readonly float TIME_SCALE_FOR_GENERATION = 10f;
+    public static readonly int MAX_LSYSTEMS = 12;
     public static readonly int MAX_LEVELS = 6;
 
 
@@ -41,12 +55,27 @@ public class RatingSystem : MonoBehaviour
     {
         lSystems = new List<LSystem>();
         levelData = new List<List<LevelData>>();
+        isStarred = new List<bool>();
 
-        for(int i = 0; i < MAX_LEVELS; ++i)
+        for(int i = 0; i < MAX_LSYSTEMS; ++i)
         {
             levelData.Add(new List<LevelData>());
+            isStarred.Add(false);
         }
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Init: " + RatingSystem.levelSprites.Count);
+    }
+
+    public static void ClearAll()
+    {
+        lSystems = new List<LSystem>();
+        levelData = new List<List<LevelData>>();
+        isStarred = new List<bool>();
+
+        for (int i = 0; i < MAX_LSYSTEMS; ++i)
+        {
+            levelData.Add(new List<LevelData>());
+            isStarred.Add(false);
+        }
     }
 
     public static void GenerateXMLs(int lSystemIndex, int height)
@@ -61,6 +90,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void StartGeneratingScreenshots(int lSystemIndex)
     {
+        Debug.Log("Starting generation for " + lSystemIndex);
         AudioListener.volume = 0f;
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Start: " + RatingSystem.levelSprites.Count);
         isGenerating = true;
@@ -70,6 +100,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void EndGeneratingScreenshots()
     {
+        Debug.Log("Ending generation");
         AudioListener.volume = 0.1f;
         isGenerating = false;
         Time.timeScale = 1f;
@@ -87,6 +118,20 @@ public class RatingSystem : MonoBehaviour
         Debug.Log("pressing " + (i % MAX_LEVELS));
         levelData[CurrentLSystemIndex][i % MAX_LEVELS].pressedButton = !levelData[CurrentLSystemIndex][i % MAX_LEVELS].pressedButton;
         if (levelData[CurrentLSystemIndex][i % MAX_LEVELS].pressedButton)
+        {
+            star.GetComponent<Image>().color = Color.yellow;
+        }
+        else
+        {
+            star.GetComponent<Image>().color = Color.black;
+        }
+    }
+
+    public static void RateLSystem(int lSystemIndex, GameObject star)
+    {
+        Debug.Log("pressing " + lSystemIndex);
+        isStarred[lSystemIndex] = !isStarred[lSystemIndex];
+        if (isStarred[lSystemIndex])
         {
             star.GetComponent<Image>().color = Color.yellow;
         }
@@ -123,6 +168,9 @@ public class RatingSystem : MonoBehaviour
              * got the lSystem on line 67, as long as you add a value in the ABLevel that represents the seed
              */ 
         }
+
+        // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
+        // the index in isStarred corresponds to the index in lSystems
 
         script.StartCoroutine(SqlConnection.PostRating(null));
     }

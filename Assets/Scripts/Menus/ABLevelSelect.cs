@@ -53,15 +53,16 @@ public class ABLevelSelect : ABMenu {
         StartCoroutine(SqlConnection.GetPopulation());
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
-        int numLSystems = 6;
-        for (int i = 0; i < numLSystems; i++) {
+        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++) {
+            Debug.Log("LSYSTEM# " + i);
             RatingSystem.lSystems.Add(new LSystem(3, 5));
+            RatingSystem.GenerateXMLs(i, 5);
         }
 
-        for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
-        {
-            RatingSystem.GenerateXMLs(i, 5); // hardcoded height
-        }
+        //for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
+        //{
+        //    RatingSystem.GenerateXMLs(i, 5); // hardcoded height
+        //}
     }
 
     public void LoadScreenshots(int lSystemIndex)
@@ -96,12 +97,14 @@ public class ABLevelSelect : ABMenu {
     public void SubmitRatings()
     {
         RatingSystem.SubmitRatings(this);
-        RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
-        LoadScreenshots(RatingSystem.CurrentLSystemIndex);
+        RatingSystem.ClearAll();
+        ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+        //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
+        //LoadScreenshots(RatingSystem.CurrentLSystemIndex);
         //GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
-
     }
 
+    // deprecated
     public string[] loadXMLsOld()
     {
         // Load levels in the resources folder
@@ -143,13 +146,15 @@ public class ABLevelSelect : ABMenu {
 
     public string[] loadXMLs()
     {
-        string[] allXmls = new string[36];
+        string[] allXmls = new string[RatingSystem.MAX_LEVELS * RatingSystem.MAX_LSYSTEMS];
+        //Debug.Log("TOTAL: " + (RatingSystem.MAX_LEVELS * RatingSystem.MAX_LSYSTEMS));
 
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
         {
             for (int j = 0; j < RatingSystem.MAX_LEVELS; ++j)
             {
-                allXmls[i * 6 + j] = RatingSystem.levelData[i][j].levelXML;
+                //Debug.Log(i * RatingSystem.MAX_LEVELS + j);
+                allXmls[i * RatingSystem.MAX_LEVELS + j] = RatingSystem.levelData[i][j].levelXML;
             }
         }
 
@@ -161,6 +166,7 @@ public class ABLevelSelect : ABMenu {
         return allXmls;
     }
 
+    // deprecated
     public void DisplayLSystems()
     {
         lSystemButtons.SetActive(true);
@@ -172,6 +178,7 @@ public class ABLevelSelect : ABMenu {
         }
     }
 
+    // deprecated
     public void DisplayLevels(int lSystemIndex)
     {
         if (RatingSystem.levelData[lSystemIndex][0].levelSprite == null)
@@ -254,14 +261,30 @@ public class ABLevelSelect : ABMenu {
 
         if (RatingSystem.lSystems.Count <= 0)
         {
+            Debug.Log("Initializing LSystems...");
             InitializeLSystems();
+            loadXMLs();
         }
 
-        loadXMLs();
-
-        if (RatingSystem.CurrentLSystemIndex >= 0)
+        for (int i = 0; i < RatingSystem.levelData.Count; ++i)
         {
-            DisplayLevels(RatingSystem.CurrentLSystemIndex);
+            if (RatingSystem.levelData[i][0].levelSprite == null)
+            {
+                Debug.Log("LSystem " + i + " does not have screenshots generated");
+                LoadScreenshots(i);
+                goto Finished;
+            }
         }
+        RatingSystem.EndGeneratingScreenshots();
+        Debug.Log("Done generating all screenshots");
+
+        //loadXMLs();
+
+        //if (RatingSystem.CurrentLSystemIndex >= 0)
+        //{
+        //    DisplayLevels(RatingSystem.CurrentLSystemIndex);
+        //}
+        Finished:
+        Debug.Log("Done with LevelSelect.Start");
     }
 }

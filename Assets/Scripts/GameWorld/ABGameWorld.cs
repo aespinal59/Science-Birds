@@ -97,6 +97,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         //_isSimulation = RatingSystem.IsGenerating;
         if (RatingSystem.IsGenerating)
         {
+            //Debug.Log("In level " + LevelList.Instance.CurrentIndex);
             HideViewCam.GetCamera().enabled = true;
             hudObject.SetActive(false);
             stabilityCounter = 0.3f;
@@ -104,6 +105,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         }
         else
         {
+            //Debug.Log("Not generating screenshots for level " + LevelList.Instance.CurrentIndex);
             HideViewCam.GetCamera().enabled = false;
             hudObject.SetActive(true);
         }
@@ -272,10 +274,19 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
                 RenderTexture.active = null; // JC: added to avoid errors
                 Destroy(rt);
 
+                // for saving screenshot as png
+                //byte[] bytes = screenShot.EncodeToPNG();
+                //string filename = string.Format("{0}/screenshots/screen_{1}x{2}_{3}.png",
+                //              Application.dataPath,
+                //              resWidth, resHeight,
+                //              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+                //System.IO.File.WriteAllBytes(filename, bytes);
+                //Debug.Log(string.Format("Took screenshot to: {0}", filename));
+
                 // save sprite
                 Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
                 RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable);
-                //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelSprites.Count);
+                //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelData.Count);
 
                 // go to next level
                 NextLevel();
