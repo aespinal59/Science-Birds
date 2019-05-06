@@ -70,11 +70,12 @@ public class SqlConnection
     {
         UnityWebRequest request = new UnityWebRequest(getPopulationURL + (ParentId != null ? "?ParentId=" + ParentId?.ToString() : ""));
         request.downloadHandler = new DownloadHandlerBuffer();
+        Debug.Log("Retreiving Population");
         yield return request.SendWebRequest();
 
         if (request.error != null)
         {
-            Debug.LogError("There was an error getting the high score: " + request.error);
+            Debug.LogError("There was an error retreiving the population: " + request.error);
         }
         else
         {
@@ -83,7 +84,7 @@ public class SqlConnection
             var JSONObj = JsonUtility.FromJson<Population>(response);
             PopulationId = JSONObj.PopulationId;
             hash = JSONObj.Hash;
-            Debug.Log(PopulationId);
+            Debug.Log("PopulationId: " + PopulationId);
         }
     }
 }

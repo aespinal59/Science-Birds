@@ -141,7 +141,7 @@ public class RatingSystem : MonoBehaviour
         }
     }
 
-    public static void SubmitRatings(MonoBehaviour script)
+    public static void SubmitRatings()
     {
         GetFitnesses();
         Dictionary<int, int> ratings = new Dictionary<int, int>();
@@ -172,7 +172,7 @@ public class RatingSystem : MonoBehaviour
         // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
         // the index in isStarred corresponds to the index in lSystems
 
-        script.StartCoroutine(SqlConnection.PostRating(null));
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(null));
     }
 
     public static List<float> GetFitnesses()

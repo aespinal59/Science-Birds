@@ -50,7 +50,7 @@ public class ABLevelSelect : ABMenu {
         /* TODO: 
          * populate RatingSystem.lSystems with 6 LSystems
          */
-        StartCoroutine(SqlConnection.GetPopulation());
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation());
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
         for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++) {
@@ -96,7 +96,7 @@ public class ABLevelSelect : ABMenu {
 
     public void SubmitRatings()
     {
-        RatingSystem.SubmitRatings(this);
+        RatingSystem.SubmitRatings();
         RatingSystem.ClearAll();
         ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
