@@ -12,6 +12,7 @@ public class RatingSystem : MonoBehaviour
         public bool pressedButton;
         public uint preScore;
         public float timeToStable;
+        public bool hasPigs;
 
         public LevelData(string xml)
         {
@@ -20,6 +21,7 @@ public class RatingSystem : MonoBehaviour
             levelSprite = null;
             preScore = 0;
             timeToStable = 0f;
+            hasPigs = false;
         }
 
     }
@@ -106,11 +108,12 @@ public class RatingSystem : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    public static void AddLevel(int i, Sprite level, uint preScore, float timeToStable)
+    public static void AddLevel(int i, Sprite level, uint preScore, float timeToStable, bool hasPigs)
     {
         levelData[CurrentLSystemIndex][i % MAX_LEVELS].levelSprite = level;
         levelData[CurrentLSystemIndex][i % MAX_LEVELS].preScore = preScore;
         levelData[CurrentLSystemIndex][i % MAX_LEVELS].timeToStable = timeToStable;
+        levelData[CurrentLSystemIndex][i % MAX_LEVELS].hasPigs = hasPigs;
     }
 
     public static void RateLevel(int i, GameObject star)
@@ -185,8 +188,15 @@ public class RatingSystem : MonoBehaviour
             float averageVal = 0;
             foreach (LevelData data in levelData[i])
             {
-                averageVal += 1f / (data.preScore + 10f * data.timeToStable + 1f);
-                Debug.Log("preScore: " + data.preScore + "\ttimeToStable: " + data.timeToStable);
+                if (data.hasPigs)
+                {
+                    averageVal += 1f / (data.preScore + 10f * data.timeToStable + 1f);
+                    Debug.Log("preScore: " + data.preScore + "\ttimeToStable: " + data.timeToStable);
+                }
+                else
+                {
+                    Debug.Log("no pigs. 0/0");
+                }
             }
             averageVal /= MAX_LEVELS;
             Debug.Log("fitness: " + averageVal);
