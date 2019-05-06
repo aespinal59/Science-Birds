@@ -81,10 +81,10 @@ public class SqlConnection
         {
             string response = request.downloadHandler.text;
             //string[] variables = response.Split('|');
+            Debug.Log(response);
             var JSONObj = JsonUtility.FromJson<Population>(response);
             PopulationId = JSONObj.PopulationId;
             hash = JSONObj.Hash;
-            Debug.Log("PopulationId: " + PopulationId);
         }
     }
 }
