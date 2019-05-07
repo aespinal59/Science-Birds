@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
-//using UnityEngine;
+using UnityEngine;
 
 
 //  Block coordinates (x, y) indicate the center of the block.
@@ -15,6 +15,8 @@ public class LSystem
     private Dictionary<string, Tuple<List<string>, List<double>>> rules;
 
     //  Change these to private.
+    public int id;
+
     public int maxHeight;
 
     public int maxWidth = 5;
@@ -124,14 +126,11 @@ public class LSystem
     };
 
     //Constructor with pre-defined rules.
-    public LSystem(Dictionary<string, Tuple<List<string>, List<double>>> r, int numRule, int maxW)
-    {
+    public LSystem(Dictionary<string, Tuple<List<string>, List<double>>> r, int numRule, int maxW) {
         //  Get an axiom from a rule.
         string axiom = "A"; //  Default
-        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in r)
-        {
-            if (ruleset.Value.Item1.Count != 0)
-            {
+        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in r) {
+            if (ruleset.Value.Item1.Count != 0) {
                 axiom = ruleset.Key;
                 break;
             }
@@ -146,8 +145,7 @@ public class LSystem
     }
 
     //Constructor with pre-defined rules and axiom.
-    public LSystem(string axiom, Dictionary<string, Tuple<List<string>, List<double>>> r, int numRule, int maxW)
-    {
+    public LSystem(string axiom, Dictionary<string, Tuple<List<string>, List<double>>> r, int numRule, int maxW) {
 
         maxWidth = maxW;
         numRules = numRule;
@@ -158,8 +156,7 @@ public class LSystem
     }
 
     //Constructor with random rules & axiom.
-    public LSystem(int numRule, int maxW)
-    {
+    public LSystem(int numRule, int maxW) {
 
         numRules = numRule;
         maxWidth = maxW;
@@ -172,26 +169,23 @@ public class LSystem
         string axiom = possibleAxioms[random.Next(0, possibleAxioms.Count)];
 
         //Initialize LSystem
-
+        
         iterations = new List<string> { axiom };
         rowStartCoordinates = new List<double> { };
     }
 
     //Rescale probabilities of rules to interval [0, 1]
-    public static List<double> RescaleWeights(List<double> weights)
-    {
+    public static List<double> RescaleWeights(List<double> weights) {
 
         double total = 0;
 
         List<double> newWeights = new List<double> { };
 
-        foreach (double weight in weights)
-        {
+        foreach (double weight in weights) {
             total += weight;
         }
 
-        foreach (double weight in weights)
-        {
+        foreach (double weight in weights) {
             newWeights.Add(weight / total);
         }
 
@@ -200,19 +194,16 @@ public class LSystem
     }
 
     //Generates random rules
-    private Dictionary<string, Tuple<List<string>, List<double>>> GenerateRandomRules(int numRule, int maxW)
-    {
+    private Dictionary<string, Tuple<List<string>, List<double>>> GenerateRandomRules(int numRule, int maxW) {
 
         //  Initializing the dictionary
         Dictionary<string, Tuple<List<string>, List<double>>> newRules = new Dictionary<string, Tuple<List<string>, List<double>>>();
-        foreach (string symbol in blocks.Keys)
-        {
+        foreach (string symbol in blocks.Keys) {
             newRules[symbol] = new Tuple<List<string>, List<double>>(new List<string>(), new List<double>());
         }
 
 
-        for (int i = 0; i < numRule; i++)
-        {
+        for (int i = 0; i < numRule; i++) {
             List<string> symbols = new List<string>(blocks.Keys);
 
             //Get a condition.
@@ -221,8 +212,7 @@ public class LSystem
             //Get a successor of random width < max width.
             int succWidth = random.Next(1, maxW);
             string successor = "";
-            for (int s = 0; s < succWidth; s++)
-            {
+            for (int s = 0; s < succWidth; s++) {
                 string nextSymbol = symbols[random.Next(symbols.Count)];
                 successor += nextSymbol;
             }
@@ -252,13 +242,11 @@ public class LSystem
 
     }
 
-    public static LSystem Crossover(LSystem lparent, LSystem rparent)
-    {
+    public static LSystem Crossover(LSystem lparent, LSystem rparent) {
 
 
         //  Don't really need to be equal
-        if (lparent.numRules != rparent.numRules)
-        {
+        if (lparent.numRules != rparent.numRules) {
             Console.WriteLine("Error: Parents do not have equal number of rules.");
         }
 
@@ -275,8 +263,7 @@ public class LSystem
         int llistIndex = 0;
         List<string> lconditions = new List<string>(lparent.rules.Keys);
         //  TODO: change to half of numRules
-        for (int i = 0; i < lparent.numRules / 2; i++)
-        {
+        for (int i = 0; i < lparent.numRules / 2; i++) {
 
             //  Check if all of the rules with same condition have been seen.
             while (llistIndex >= lparent.rules[lconditions[ldictIndex]].Item1.Count)
@@ -308,7 +295,7 @@ public class LSystem
             );
 
             llistIndex++;
-
+            
         }
 
         //  Get rules from right parent.
@@ -361,8 +348,7 @@ public class LSystem
 
     //  TODO: Change condition too?
     //  Mutates one random rule, changing the successor and probability of that rule.
-    public static LSystem Mutation(LSystem l)
-    {
+    public static LSystem Mutation(LSystem l) {
         List<string> symbols = new List<string>(blocks.Keys);
 
         //Get a successor of random width < max width.
@@ -379,10 +365,8 @@ public class LSystem
 
         Dictionary<string, Tuple<List<string>, List<double>>> r = l.rules;
 
-        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in l.rules)
-        {
-            if (ruleset.Value.Item1.Count != 0)
-            {
+        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in l.rules) {
+            if (ruleset.Value.Item1.Count != 0) {
                 List<string> newSuccessors = ruleset.Value.Item1;
                 List<double> newProbabilities = ruleset.Value.Item2;
 
@@ -405,25 +389,20 @@ public class LSystem
     }
 
     //  Iterates LSystem, applying rules on axiom for numIter iterations.
-    public void Iterate(int numIter)
-    {
+    public void Iterate(int numIter) {
         iterations = new List<string> { iterations[0] };
 
-        for (; numIter > 0; numIter--)
-        {
+        for (; numIter > 0; numIter--) {
 
             string newAxiom = "";
 
-            foreach (char symbol in iterations[iterations.Count - 1])
-            {
+            foreach (char symbol in iterations[iterations.Count - 1]) {
                 //  Check if there is a rule with that condition.
-                if (rules.ContainsKey(symbol.ToString()) && rules[symbol.ToString()].Item1.Count != 0)
-                {
+                if (rules.ContainsKey(symbol.ToString()) && rules[symbol.ToString()].Item1.Count != 0) {
                     WSelect wselect = new WSelect();
                     newAxiom += wselect.Select(rules[symbol.ToString()].Item1, rules[symbol.ToString()].Item2);
                 }
-                else
-                {
+                else {
 
                     newAxiom += symbol;
                 }
@@ -439,11 +418,9 @@ public class LSystem
         //Debug.Log("-----------------------------------------");
 
         blockCoordinates = new List<List<List<double>>>();
-        for (int i = 0; i < iterations.Count; i++)
-        {
+        for (int i = 0; i < iterations.Count; i++) {
             blockCoordinates.Add(new List<List<double>>());
-            for (int j = 0; j < iterations[i].Length; j++)
-            {
+            for (int j = 0; j < iterations[i].Length; j++) {
                 blockCoordinates[i].Add(new List<double>());
             }
         }
@@ -455,22 +432,19 @@ public class LSystem
 
 
     //  Update the list of start coordinates.
-    private void GetStartCoordinates(double structureCenterX)
-    {
+    private void GetStartCoordinates(double structureCenterX) {
 
         double rowCenterX = structureCenterX;
 
         //  Find the start of each row (X-coordinate) by subtracting half of width from
         //  structure center.
         //  Goes from top row to bottom row.
-        for (int rowIndex = 0; rowIndex < iterations.Count; rowIndex++)
-        {
+        for (int rowIndex = 0; rowIndex < iterations.Count; rowIndex++) {
 
             double rowWidth = 0;
 
 
-            foreach (char symbol in iterations[rowIndex])
-            {
+            foreach (char symbol in iterations[rowIndex]) {
                 //Debug.Log(symbol.ToString());
                 rowWidth += blocks[symbol.ToString()][0];
             }
@@ -484,43 +458,35 @@ public class LSystem
 
     }
 
-    private void GetBlockCoordinates()
-    {
+    private void GetBlockCoordinates() {
 
-        for (int rowIndex = iterations.Count - 1; rowIndex > -1; rowIndex--)
-        {
+        for (int rowIndex = iterations.Count - 1; rowIndex > -1; rowIndex--) {
 
             //  Get x coordinates
             double x = rowStartCoordinates[rowIndex];
-            for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++)
-            {
+            for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++) {
                 x += blocks[iterations[rowIndex][colIndex].ToString()][0] / 2;
                 blockCoordinates[rowIndex][colIndex].Add(x);
                 x += blocks[iterations[rowIndex][colIndex].ToString()][0] / 2;
             }
 
             //  Get y coordinates
-            if (rowIndex == iterations.Count - 1)
-            {
-                for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++)
-                {
+            if (rowIndex == iterations.Count - 1) {
+                for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++) {
                     blockCoordinates[rowIndex][colIndex].Add(-3.5 + blocks[iterations[rowIndex][colIndex].ToString()][1] / 2);
                 }
             }
-            else
-            {
+            else {
 
                 string bottomRow = iterations[rowIndex + 1], currRow = iterations[rowIndex];
-                for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++)
-                {
+                for (int colIndex = 0; colIndex < iterations[rowIndex].Length; colIndex++) {
                     List<double> checkInterval = new List<double> {
                         blockCoordinates[rowIndex][colIndex][0] - blocks[currRow[colIndex].ToString()][0] + 0.2, // remove buffers
                         blockCoordinates[rowIndex][colIndex][0] + blocks[currRow[colIndex].ToString()][0] - 0.2
                     };
 
                     double maxHeight = -3.5;
-                    for (int axIndex = 0; axIndex < bottomRow.Length; axIndex++)
-                    {
+                    for (int axIndex = 0; axIndex < bottomRow.Length; axIndex++) {
                         string symbol = bottomRow[axIndex].ToString();
                         double blockWidth = blocks[symbol][0];
                         double blockCenterX = blockCoordinates[rowIndex + 1][axIndex][0];
@@ -535,8 +501,7 @@ public class LSystem
                         {
                             double blockHeight = blocks[symbol][1];
                             double blockTopEdgeHeight = blockCoordinates[rowIndex + 1][axIndex][1] + blockHeight / 2;
-                            if (blockTopEdgeHeight > maxHeight)
-                            {
+                            if (blockTopEdgeHeight > maxHeight) {
                                 maxHeight = blockTopEdgeHeight;
                             }
                         }
@@ -551,8 +516,7 @@ public class LSystem
 
     }
 
-    public string GenerateXML(int height)
-    {
+    public string GenerateXML(int height) {
         //Generate the level by iterating.
         Iterate(height);
 
@@ -565,8 +529,7 @@ public class LSystem
 
     }
 
-    private string StartXML()
-    {
+    private string StartXML() {
         return "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n" +
             "<Level width =\"2\">\n" +
             "<Camera x=\"0\" y=\"2\" minWidth=\"20\" maxWidth=\"30\">\n" +
@@ -579,14 +542,12 @@ public class LSystem
             "<GameObjects>\n";
     }
 
-    private string EndXML()
-    {
+    private string EndXML() {
         return "</GameObjects>\n" +
             "</Level>\n";
     }
 
-    private string BlocksToXML()
-    {
+    private string BlocksToXML() {
         string xmlBlocks = "";
         for (int rowIndex = 0; rowIndex < iterations.Count; rowIndex++)
         {
@@ -605,8 +566,7 @@ public class LSystem
         return xmlBlocks;
     }
 
-    private static string Xmlify(string blockType, string material, double x, double y, double rot)
-    {
+    private static string Xmlify(string blockType, string material, double x, double y, double rot) {
         return String.Format(
             "<Block type=\"{0}\" material=\"{1}\" x=\"{2}\" y=\"{3}\" rotation=\"{4}\" />\n",
             blockType,
@@ -616,8 +576,7 @@ public class LSystem
             rot.ToString());
     }
 
-    public string this[int key]
-    {
+    public string this[int key] {
         get
         {
             return iterations[key];
@@ -628,8 +587,7 @@ public class LSystem
         }
     }
 
-    public void SetFitness(double fvalue)
-    {
+    public void SetFitness(double fvalue) {
         fitness = fvalue;
     }
 
@@ -640,46 +598,38 @@ public class LSystem
     //  Condition and ruleset are separated by ':'
     //  Individual rules (groups of successors and probabilities) are separated by ';'
     //  Successor and probability are separated by ','
-    public static string Encode(LSystem l)
-    {
+    public static string Encode(LSystem l) {
         string axiom = l.iterations[0];
         string rules = "";
-        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in l.rules)
-        {
+        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in l.rules) {
 
             //  If there are rules with given condition
-            if (ruleset.Value.Item1.Count > 0)
-            {
+            if (ruleset.Value.Item1.Count > 0) {
                 //  Add the condition
                 rules += ruleset.Key;
                 rules += ":";
-
-                for (int ruleIndex = 0; ruleIndex < ruleset.Value.Item1.Count; ruleIndex++)
-                {
+                
+                for (int ruleIndex = 0; ruleIndex < ruleset.Value.Item1.Count; ruleIndex++) {
                     //  Add the successor
                     rules += ruleset.Value.Item1[ruleIndex];
                     rules += ",";
                     //  Add the probability
                     rules += ruleset.Value.Item2[ruleIndex].ToString();
-                    Console.WriteLine("prob: " + ruleset.Value.Item2[ruleIndex].ToString() + "\n");
-                    Console.WriteLine(ruleset.Value.Item2[ruleIndex]);
-                    if (ruleIndex < ruleset.Value.Item1.Count - 1)
-                    {
+                    if (ruleIndex < ruleset.Value.Item1.Count - 1) {
                         rules += ";";
                     }
-
+                    
                 }
                 rules += "|";
             }
-
+            
         }
 
         return axiom + "~" + rules;
 
     }
 
-    public static LSystem Decode(string s)
-    {
+    public static LSystem Decode(string s) {
         string axiom = s.Split('~')[0];
         string ruleString = s.Split('~')[1];
         int numRules = 0;
@@ -687,30 +637,25 @@ public class LSystem
 
         //  Initialize rule dictionary
         Dictionary<string, Tuple<List<string>, List<double>>> rules = new Dictionary<string, Tuple<List<string>, List<double>>>();
-        foreach (string symbol in blocks.Keys)
-        {
+        foreach (string symbol in blocks.Keys) {
             rules[symbol] = new Tuple<List<string>, List<double>>(new List<string>(), new List<double>());
         }
 
         string[] rulesets = ruleString.Split('|');
 
         //  Add rules to dictionary
-        foreach (string ruleset in rulesets)
-        {
-            if (ruleset != "")
-            {
+        foreach (string ruleset in rulesets) {
+            if (ruleset != "") {
                 string condition = ruleset.Split(':')[0];
                 string ruleStrings = ruleset.Split(':')[1];
-                foreach (string rule in ruleStrings.Split(';'))
-                {
+                foreach (string rule in ruleStrings.Split(';')) {
                     string successor = rule.Split(',')[0];
                     double probability = Convert.ToDouble(rule.Split(',')[1]);
                     rules[condition].Item1.Add(successor);
                     rules[condition].Item2.Add(probability);
 
                     //  Update max width
-                    if (successor.Length > maxWidth)
-                    {
+                    if (successor.Length > maxWidth) {
                         maxWidth = successor.Length;
                     }
 
@@ -722,24 +667,20 @@ public class LSystem
         }
 
         return new LSystem(axiom, rules, numRules, maxWidth);
-
+        
     }
 
-    class WSelect
-    {
+    class WSelect {
 
         private static System.Random random = new System.Random();
-        public string Select(List<string> choices, List<double> weights)
-        {
+        public string Select(List<string> choices, List<double> weights) {
             double total = 100.0;
             double count = 0.0;
             double winner = random.Next(0, 100);
 
-            for (int i = 0; i < choices.Count; i++)
-            {
+            for (int i = 0; i < choices.Count; i++) {
                 count += weights[i] * total;
-                if (winner < count)
-                {
+                if (winner < count) {
                     return choices[i];
                 }
             }
