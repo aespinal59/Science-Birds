@@ -26,7 +26,7 @@ public class LSystemButton : MonoBehaviour
     {
         RatingSystem.CurrentLSystemIndex = lSystemIndex;
         panel.UpdatePreviews(lSystemIndex);
-        Debug.Log("Inside Button " + lSystemIndex);
+        //Debug.Log("Inside Button " + lSystemIndex);
     }
 
     public void GenerateNewLevels()

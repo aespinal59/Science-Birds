@@ -102,7 +102,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void EndGeneratingScreenshots()
     {
-        Debug.Log("Ending generation");
+        //Debug.Log("Ending generation");
         AudioListener.volume = 0.1f;
         isGenerating = false;
         Time.timeScale = 1f;
@@ -132,7 +132,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void RateLSystem(int lSystemIndex, GameObject star)
     {
-        Debug.Log("pressing " + lSystemIndex);
+        //Debug.Log("pressing " + lSystemIndex);
         isStarred[lSystemIndex] = !isStarred[lSystemIndex];
         if (isStarred[lSystemIndex])
         {
@@ -174,20 +174,30 @@ public class RatingSystem : MonoBehaviour
 
         // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
         // the index in isStarred corresponds to the index in lSystems
+        Debug.Log("creating wrapper list...");
         List<LSystemWrapper> wrappers = new List<LSystemWrapper>();
         for (int i = 0; i < lSystems.Count; i++)
         {
+            Debug.Log("in loop i=" + i);
             LSystem lSystem = lSystems[i];
+            Debug.Log("got lSystem");
             LSystemWrapper wrapper = new LSystemWrapper();
             string[] axiomAndRules = LSystem.Encode(lSystem).Split('~');
+            Debug.Log("created axiomAndRules");
             wrapper.Axiom = axiomAndRules[0];
+            Debug.Log("set Axiom");
             wrapper.Rules = axiomAndRules[1];
+            Debug.Log("set Rules");
             wrapper.IsStarred = isStarred[i];
+            Debug.Log("set isStarred");
             wrapper.PopulationId = SqlConnection.PopulationId.Value;
+            Debug.Log("set PopulationId");
             wrappers.Add(wrapper);
         }
+        Debug.Log("finished creating wrapper list");
 
         SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(wrappers.ToArray()));
+        Debug.Log("started coroutine");
     }
 
     public static List<float> GetFitnesses()
@@ -203,11 +213,11 @@ public class RatingSystem : MonoBehaviour
                 if (data.hasPigs)
                 {
                     averageVal += 1f / (data.preScore + 10f * data.timeToStable + 1f);
-                    Debug.Log("preScore: " + data.preScore + "\ttimeToStable: " + data.timeToStable);
+                    //Debug.Log("preScore: " + data.preScore + "\ttimeToStable: " + data.timeToStable);
                 }
                 else
                 {
-                    Debug.Log("no pigs. 0/0");
+                    //Debug.Log("no pigs. 0/0");
                 }
             }
             averageVal /= MAX_LEVELS;

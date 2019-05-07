@@ -3605,7 +3605,7 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Please star Level Generators that you deem as interesting/fun in order to
-    help our learning algorithm improve it's level generation. Thanks! :)
+    help our learning algorithm improve its level generation. Thanks! :)
 --- !u!222 &1660563982
 CanvasRenderer:
   m_ObjectHideFlags: 0

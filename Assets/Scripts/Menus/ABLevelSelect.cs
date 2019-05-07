@@ -276,7 +276,7 @@ public class ABLevelSelect : ABMenu {
             {
                 //Debug.Log("LSystem " + i + " does not have screenshots generated");
                 LoadScreenshots(i);
-                goto Finished;
+                return;
             }
         }
         RatingSystem.EndGeneratingScreenshots();
@@ -288,7 +288,5 @@ public class ABLevelSelect : ABMenu {
         //{
         //    DisplayLevels(RatingSystem.CurrentLSystemIndex);
         //}
-        Finished:
-        Debug.Log("Done with LevelSelect.Start");
     }
 }
