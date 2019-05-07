@@ -9,27 +9,31 @@ class LSystemEvolver
     private int maxWidth;
     private int maxHeight;
     private int numRules;
-    private int populationSize;
-    private int mutationRate;
-    private List<LSystem> population;
+    private double mutationRate;
 
     //Constructor
-    public LSystemEvolver(int nrules, int width, int height, int popSize, int mutRate)
+    public LSystemEvolver(int nrules, int width, int height, double mutRate)
     {
         //  Set hyperparameters
         numRules = nrules;
         maxWidth = width;
         maxHeight = height;
-        populationSize = popSize;
         mutationRate = mutRate;
 
+        
+
+    }
+
+    public static List<LSystem> GenerateRandomPopulation(int populationSize, int numRule, int maxW) {
         //  Initialize population
+        List<LSystem> population = new List<LSystem>();
         for (int i = 0; i < populationSize; i++)
         {
             //  Create random LSystem and add it to population
-            population.Add(new LSystem(numRules, maxWidth));
+            population.Add(new LSystem(numRule, maxW));
         }
 
+        return population;
     }
 
     //Methods
@@ -43,24 +47,25 @@ class LSystemEvolver
         return LSystem.Mutation(l);
     }
 
-    public List<LSystem> EvolvePopulation(double[] fitness, int mu, int lambda)
+    //  Evolves population using fitness values and mu + lambda genetic algorithm.
+    public List<LSystem> EvolvePopulation(List<LSystem> population, double[] fitness, int mu, int lambda)
     {
         //  Check if length of fitness array matches population size
-        if (fitness.Length != populationSize)
+        if (fitness.Length != population.Count)
         {
             Console.WriteLine("Error: Invalid fitness size.");
             return population;
         }
 
         //  Check if mu + lambda equals population size.
-        if (mu + lambda != populationSize)
+        if (mu + lambda != population.Count)
         {
             Console.WriteLine("Error: mu + lambda does not equal populationSize.");
             return population;
         }
 
         //  Sett the fitness values for the population
-        for (int popIndex = 0; popIndex < populationSize; popIndex++)
+        for (int popIndex = 0; popIndex < population.Count; popIndex++)
         {
             population[popIndex].SetFitness(fitness[popIndex]);
         }
