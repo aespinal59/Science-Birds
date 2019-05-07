@@ -113,7 +113,7 @@ class StringToStructure
 
     }
 
-#if (true)
+#if (false)
     static void Main(string[] args)
     {
         //File path for level xml
@@ -161,6 +161,9 @@ class StringToStructure
         {
             Console.WriteLine(axiom);
         }
+
+        Console.WriteLine(LSystem.Encode(r3));
+
 
 
         Console.ReadKey();
