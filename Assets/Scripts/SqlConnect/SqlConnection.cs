@@ -24,11 +24,12 @@ public class SqlConnection
         var jsonString = JsonUtility.ToJson(helper);
 
         Debug.Log("Uploading: " + jsonString);
-        using (UnityWebRequest post = UnityWebRequest.Post(addRatingURL, jsonString))
+        using (UnityWebRequest post = UnityWebRequest.Put(addRatingURL, jsonString))
         {
-            post.SetRequestHeader("Content-Type", "application/json");
-            post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
-            post.uploadHandler.contentType = "application/json";
+            //post.SetRequestHeader("Content-Type", "application/json");
+            post.method = "POST";
+            //post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
+            //post.uploadHandler.contentType = "application/json";
             //post.downloadHandler = new DownloadHandlerBuffer();
             //post.chunkedTransfer = false;
             yield return post.SendWebRequest();
