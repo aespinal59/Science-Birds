@@ -16,34 +16,13 @@ public class SqlConnection
     // remember to use StartCoroutine when calling this function!
     public static IEnumerator PostRating(LSystemWrapper[] LSystems)
     {
-        //string hash = Md5Sum(LSystemId.ToString() + rating.ToString() + secretKey);
-
-        //string post_url = addRatingURL + "LSystemId=" + LSystemId + "&rating=" + rating + "&hash=" + hash;
-        //WWWForm form = new WWWForm();
-        //form.AddField("hash", hash);
-        //form.AddField("PopulationId", PopulationId?.ToString());
-        //form.AddField("ParentId", ParentId?.ToString());
-        //foreach (var rating in ratings)
-        //{
-        //    form.AddField("lsystem" + rating.Key.ToString(), rating.Value.ToString());
-        //}
-
-        //Debug.Log(post_url);
-        // Post the URL to the site and create a download object to get the result.
-        //UnityWebRequest post = new UnityWebRequest(addRatingURL);
-        //post.SetRequestHeader("Content-type", "application/json");
-
         PostLSystemHelper helper = new PostLSystemHelper();
         helper.PopulationId = PopulationId.Value;
         helper.ParentId = ParentId;
         helper.Hash = hash;
         helper.LSystems = LSystems;
         var jsonString = JsonUtility.ToJson(helper);
-
-        //WWWForm form = new WWWForm();
-        //form.AddField("data", jsonString);
-        //post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
-
+        Debug.Log("Uploading: " + jsonString);
         using (UnityWebRequest post = UnityWebRequest.Post(addRatingURL, jsonString))
         {
             post.SetRequestHeader("Content-Type", "application/json");
@@ -80,7 +59,6 @@ public class SqlConnection
         else
         {
             string response = request.downloadHandler.text;
-            //string[] variables = response.Split('|');
             Debug.Log(response);
             var JSONObj = JsonUtility.FromJson<Population>(response);
             PopulationId = JSONObj.PopulationId;
@@ -100,8 +78,7 @@ public class Population
 public class LSystemWrapper
 {
     public int PopulationId;
-    public int LSystemId;
-    public int Ranking;
+    public bool IsStarred;
     public string Axiom;
     public string Rules;
 }

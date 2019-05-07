@@ -147,35 +147,46 @@ public class RatingSystem : MonoBehaviour
     public static void SubmitRatings()
     {
         GetFitnesses();
-        Dictionary<int, int> ratings = new Dictionary<int, int>();
+        //Dictionary<int, int> ratings = new Dictionary<int, int>();
 
-        for (int i = 0; i < levelData[CurrentLSystemIndex].Count; ++i)
-        {
-            if (levelData[CurrentLSystemIndex][i].pressedButton)
-            {
-                int lSystem = LevelList.Instance.GetLevel(CurrentLSystemIndex * MAX_LEVELS + i).lSystem;
-                if (ratings.ContainsKey(lSystem))
-                    ratings[lSystem] += 1;
-                else
-                    ratings[lSystem] = 1;
-            }
-        }
+        //for (int i = 0; i < levelData[CurrentLSystemIndex].Count; ++i)
+        //{
+        //    if (levelData[CurrentLSystemIndex][i].pressedButton)
+        //    {
+        //        int lSystem = LevelList.Instance.GetLevel(CurrentLSystemIndex * MAX_LEVELS + i).lSystem;
+        //        if (ratings.ContainsKey(lSystem))
+        //            ratings[lSystem] += 1;
+        //        else
+        //            ratings[lSystem] = 1;
+        //    }
+        //}
 
-        foreach (int i in ratings.Keys)
-        {
-            Debug.Log("LSystem: " + i + "\tRatings: " + ratings[i]);
+        //foreach (int i in ratings.Keys)
+        //{
+        //    Debug.Log("LSystem: " + i + "\tRatings: " + ratings[i]);
 
-            /* TODO:
-             * Submit ratings by adding the rating value to the corresponding LSystem_id in the database
-             * You will have to find a way to get the Level seed, but it might be obtainable the same way I
-             * got the lSystem on line 67, as long as you add a value in the ABLevel that represents the seed
-             */ 
-        }
+        //    /* TODO:
+        //     * Submit ratings by adding the rating value to the corresponding LSystem_id in the database
+        //     * You will have to find a way to get the Level seed, but it might be obtainable the same way I
+        //     * got the lSystem on line 67, as long as you add a value in the ABLevel that represents the seed
+        //     */ 
+        //}
 
         // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
         // the index in isStarred corresponds to the index in lSystems
+        List<LSystemWrapper> wrappers = new List<LSystemWrapper>();
+        for (int i = 0; i < lSystems.Count; i++)
+        {
+            LSystem lSystem = lSystems[i];
+            LSystemWrapper wrapper = new LSystemWrapper();
+            string[] axiomAndRules = LSystem.Encode(lSystem).Split('~');
+            wrapper.Axiom = axiomAndRules[0];
+            wrapper.Rules = axiomAndRules[1];
+            wrapper.IsStarred = isStarred[i];
+            wrapper.PopulationId = SqlConnection.PopulationId.Value;
+        }
 
-        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(null));
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(wrappers.ToArray()));
     }
 
     public static List<float> GetFitnesses()
