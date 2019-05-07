@@ -22,6 +22,7 @@ public class SqlConnection
         helper.Hash = hash;
         helper.LSystems = LSystems;
         var jsonString = JsonUtility.ToJson(helper);
+
         Debug.Log("Uploading: " + jsonString);
         using (UnityWebRequest post = UnityWebRequest.Post(addRatingURL, jsonString))
         {
