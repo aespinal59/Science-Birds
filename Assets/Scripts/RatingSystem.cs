@@ -184,6 +184,7 @@ public class RatingSystem : MonoBehaviour
             wrapper.Rules = axiomAndRules[1];
             wrapper.IsStarred = isStarred[i];
             wrapper.PopulationId = SqlConnection.PopulationId.Value;
+            wrappers.Add(wrapper);
         }
 
         SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(wrappers.ToArray()));
