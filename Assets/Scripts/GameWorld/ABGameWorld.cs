@@ -285,7 +285,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
                 // save sprite
                 Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
-                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable);
+                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable, _pigs.Count > 0);
                 //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelData.Count);
 
                 // go to next level
