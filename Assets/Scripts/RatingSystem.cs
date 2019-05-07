@@ -92,7 +92,7 @@ public class RatingSystem : MonoBehaviour
 
     public static void StartGeneratingScreenshots(int lSystemIndex)
     {
-        Debug.Log("Starting generation for " + lSystemIndex);
+        //Debug.Log("Starting generation for " + lSystemIndex);
         AudioListener.volume = 0f;
         //Debug.Log(System.DateTime.Now.ToString() + "\tResetting Level Count from Start: " + RatingSystem.levelSprites.Count);
         isGenerating = true;

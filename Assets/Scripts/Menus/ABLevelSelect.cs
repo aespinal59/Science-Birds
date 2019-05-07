@@ -54,7 +54,6 @@ public class ABLevelSelect : ABMenu {
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
         for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++) {
-            Debug.Log("LSYSTEM# " + i);
             RatingSystem.lSystems.Add(new LSystem(3, 5));
             RatingSystem.GenerateXMLs(i, 5);
         }
@@ -163,6 +162,11 @@ public class ABLevelSelect : ABMenu {
 
         LevelList.Instance.LoadLevelsFromSource(allXmls);
 
+        foreach (string xml in allXmls)
+        {
+            Debug.Log(xml);
+        }
+
         return allXmls;
     }
 
@@ -270,13 +274,13 @@ public class ABLevelSelect : ABMenu {
         {
             if (RatingSystem.levelData[i][0].levelSprite == null)
             {
-                Debug.Log("LSystem " + i + " does not have screenshots generated");
+                //Debug.Log("LSystem " + i + " does not have screenshots generated");
                 LoadScreenshots(i);
                 goto Finished;
             }
         }
         RatingSystem.EndGeneratingScreenshots();
-        Debug.Log("Done generating all screenshots");
+        //Debug.Log("Done generating all screenshots");
 
         //loadXMLs();
 
