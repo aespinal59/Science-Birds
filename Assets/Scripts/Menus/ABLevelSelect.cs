@@ -50,7 +50,7 @@ public class ABLevelSelect : ABMenu {
         /* TODO: 
          * populate RatingSystem.lSystems with 6 LSystems
          */
-        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation());
+        //SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation());
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
         for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++) {
@@ -260,26 +260,30 @@ public class ABLevelSelect : ABMenu {
 
     // Use this for initialization
     void Start () {
-
-        tempLevelButtons = new List<GameObject>();
-
-        if (RatingSystem.lSystems.Count <= 0)
-        {
-            Debug.Log("Initializing LSystems...");
-            InitializeLSystems();
-            loadXMLs();
-        }
-
-        for (int i = 0; i < RatingSystem.levelData.Count; ++i)
-        {
-            if (RatingSystem.levelData[i][0].levelSprite == null)
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems => {
+            if (retrievedLSystems == null)
             {
-                //Debug.Log("LSystem " + i + " does not have screenshots generated");
-                LoadScreenshots(i);
-                return;
+                tempLevelButtons = new List<GameObject>();
+
+                if (RatingSystem.lSystems.Count <= 0)
+                {
+                    Debug.Log("Initializing LSystems...");
+                    InitializeLSystems();
+                    loadXMLs();
+                }
+
+                for (int i = 0; i < RatingSystem.levelData.Count; ++i)
+                {
+                    if (RatingSystem.levelData[i][0].levelSprite == null)
+                    {
+                        //Debug.Log("LSystem " + i + " does not have screenshots generated");
+                        LoadScreenshots(i);
+                        return;
+                    }
+                }
+                RatingSystem.EndGeneratingScreenshots();
             }
-        }
-        RatingSystem.EndGeneratingScreenshots();
+        }));
         //Debug.Log("Done generating all screenshots");
 
         //loadXMLs();

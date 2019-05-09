@@ -26,8 +26,8 @@ public class SqlConnection
         Debug.Log("Uploading: " + jsonString);
         using (UnityWebRequest post = UnityWebRequest.Put(addRatingURL, jsonString))
         {
-            //post.SetRequestHeader("Content-Type", "application/json");
             post.method = "POST";
+            post.SetRequestHeader("X-Requested-With", "XMLHttpRequest");
             //post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
             //post.uploadHandler.contentType = "application/json";
             //post.downloadHandler = new DownloadHandlerBuffer();
@@ -47,13 +47,14 @@ public class SqlConnection
     }
 
     // Get population from MYSQL database
-    public static IEnumerator GetPopulation()
+    public static IEnumerator GetPopulation(bool retreiveNewSet, Action<LSystemWrapper[]> done)
     {
         UnityWebRequest request = new UnityWebRequest(getPopulationURL + (ParentId != null ? "?ParentId=" + ParentId?.ToString() : ""));
         request.downloadHandler = new DownloadHandlerBuffer();
         Debug.Log("Retreiving Population");
         yield return request.SendWebRequest();
 
+        LSystemWrapper[] retreivedLSystems = null;
         if (request.error != null)
         {
             Debug.LogError("There was an error retreiving the population: " + request.error);
@@ -66,6 +67,8 @@ public class SqlConnection
             PopulationId = JSONObj.PopulationId;
             hash = JSONObj.Hash;
         }
+
+        done(retreivedLSystems);
     }
 }
 
