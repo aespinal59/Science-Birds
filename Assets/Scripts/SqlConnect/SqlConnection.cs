@@ -18,7 +18,7 @@ public class SqlConnection
     {
         PostLSystemHelper helper = new PostLSystemHelper();
         helper.PopulationId = PopulationId.Value;
-        helper.ParentId = ParentId;
+        helper.ParentId = ParentId.Value;
         helper.Hash = hash;
         helper.LSystems = LSystems;
         var jsonString = JsonUtility.ToJson(helper);
@@ -49,7 +49,7 @@ public class SqlConnection
     // Get population from MYSQL database
     public static IEnumerator GetPopulation(bool retreiveNewSet, Action<LSystemWrapper[]> done)
     {
-        UnityWebRequest request = new UnityWebRequest(getPopulationURL + (ParentId != null ? "?ParentId=" + ParentId?.ToString() : ""));
+        UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?GetNewSet=" + (retreiveNewSet ? 1 : 0) + (ParentId != null ? "&ParentId=" + ParentId?.ToString() : ""));
         request.downloadHandler = new DownloadHandlerBuffer();
         Debug.Log("Retreiving Population");
         yield return request.SendWebRequest();
@@ -63,9 +63,10 @@ public class SqlConnection
         {
             string response = request.downloadHandler.text;
             Debug.Log(response);
-            var JSONObj = JsonUtility.FromJson<Population>(response);
+            var JSONObj = JsonUtility.FromJson<PostLSystemHelper>(response);
             PopulationId = JSONObj.PopulationId;
             hash = JSONObj.Hash;
+            retreivedLSystems = JSONObj.LSystems;
         }
 
         done(retreivedLSystems);
@@ -98,6 +99,6 @@ public class PostLSystemHelper
 {
     public int PopulationId;
     public string Hash;
-    public int? ParentId;
+    public int ParentId = -1;
     public LSystemWrapper[] LSystems;
 }
