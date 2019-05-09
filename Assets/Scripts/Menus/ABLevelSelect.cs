@@ -47,14 +47,6 @@ public class ABLevelSelect : ABMenu {
 
     public void InitializeLSystems(LSystemWrapper[] retrievedLSystems)
     {
-        /* TODO: 
-         * populate RatingSystem.lSystems with 6 LSystems
-         */
-        //SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation());
-
-        //  Initialize 6 randomized LSystems, 3 rules each, 
-        //      max size of successor being 5.
-
         for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++)
         {
             RatingSystem.lSystems.Add(LSystem.Decode(retrievedLSystems[i].GetString()));
@@ -71,31 +63,27 @@ public class ABLevelSelect : ABMenu {
         LoadNextScene("GameWorld", true, sel.UpdateLevelList);
     }
 
-    //public void GenerateXML(int lSystemIndex, string filename)
-    //{
-    //    /* TODO: 
-    //     * Generate Level from L System into the resources/levels directory (should be a constant here somewhere...)
-    //     * Set filemode to overwrite the file if it already exists
-    //     */
-
-    //    //filename = Path.Combine(ABConstants.DEFAULT_LEVELS_FOLDER, filename);
-    //    //  Generates a structure of height 5
-    //    RatingSystem.lSystems[lSystemIndex].GenerateXMLs(5);
-    //}
-
-    //public void GenerateNewLevels(int lSystemIndex)
-    //{
-    //    for (int i = 0; i < RatingSystem.MAX_LEVELS; ++i)
-    //    {
-    //        GenerateXML(lSystemIndex, String.Format("level-{0:D2}.xml", lSystemIndex * RatingSystem.MAX_LEVELS + i));
-    //    }
-    //}
-
     public void SubmitRatings()
     {
         RatingSystem.SubmitRatings();
+        // keep some levels (starred ones?)
+        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+        {
+            // add starred level to kept list
+            if (RatingSystem.isStarred[i])
+            {
+                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(RatingSystem.lSystems[i]));
+            }
+        }
+        // TODO: MUST HAVE A BACKUP PLAN IF PLAYER DOES NOT STAR ENOUGH LEVELS
+
+        // keptforevolution will contain a list of levels to run evolution on
+        // TODO: Run evolution here and replace RatingSystem.keptForEvolution with the list of newly created LSystems
+
         RatingSystem.ClearAll();
-        ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+       
+        //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+        ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
         //LoadScreenshots(RatingSystem.CurrentLSystemIndex);
         //GenerateNewLevels(RatingSystem.CurrentLSystemIndex);
@@ -141,7 +129,7 @@ public class ABLevelSelect : ABMenu {
         return allXmlFiles;
     }
 
-    public string[] loadXMLs()
+    public static string[] loadXMLs()
     {
         string[] allXmls = new string[RatingSystem.MAX_LEVELS * RatingSystem.MAX_LSYSTEMS];
         //Debug.Log("TOTAL: " + (RatingSystem.MAX_LEVELS * RatingSystem.MAX_LSYSTEMS));
@@ -155,8 +143,8 @@ public class ABLevelSelect : ABMenu {
             }
         }
 
-        _startPos.x = Mathf.Clamp(_startPos.x, 0, 1f) * Screen.width;
-        _startPos.y = Mathf.Clamp(_startPos.y, 0, 1f) * Screen.height;
+        //_startPos.x = Mathf.Clamp(_startPos.x, 0, 1f) * Screen.width;
+        //_startPos.y = Mathf.Clamp(_startPos.y, 0, 1f) * Screen.height;
 
         LevelList.Instance.LoadLevelsFromSource(allXmls);
 
@@ -170,9 +158,6 @@ public class ABLevelSelect : ABMenu {
 
     // Use this for initialization
     void Start () {
-        //SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems => {
-        //if (retrievedLSystems == null)
-        //{
 
         if (RatingSystem.lSystems.Count <= 0)
         {
@@ -202,15 +187,5 @@ public class ABLevelSelect : ABMenu {
             }
             RatingSystem.EndGeneratingScreenshots();
         }
-            //}
-        //}));
-        //Debug.Log("Done generating all screenshots");
-
-        //loadXMLs();
-
-        //if (RatingSystem.CurrentLSystemIndex >= 0)
-        //{
-        //    DisplayLevels(RatingSystem.CurrentLSystemIndex);
-        //}
     }
 }

@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameWorld.unity
     guid: 628c0c92466d74f24ad08846b2bc5843
+  - enabled: 1
+    path: Assets/Scenes/Evolution.unity
+    guid: 6d0513f9eb26a2b4585d47c771223203
   m_configObjects: {}

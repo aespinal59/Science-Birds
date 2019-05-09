@@ -25,6 +25,8 @@ using System.Collections.Generic;
 
 public class ABGameWorld : ABSingleton<ABGameWorld> {
 
+    private static readonly float STABILITY_TIMEOUT = 3f;
+
 	static int _levelTimesTried;
 
 	private bool _levelCleared;
@@ -258,36 +260,42 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         {
             //Debug.Log(System.DateTime.Now.ToString() + "\tStability: " + GetLevelStability());
             // Wait until level is stable, then take screenshot
-            if (stabilityCounter <= 0f && IsLevelStable())
+            if (stabilityCounter <= 0f && (IsLevelStable() || timeToStable >= STABILITY_TIMEOUT))
             {
-                Camera camera = GameplayCam.GetCamera();
-                int resWidth = camera.pixelWidth;
-                int resHeight = camera.pixelHeight;
-                RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
-                camera.targetTexture = rt;
-                Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
-                camera.Render();
-                RenderTexture.active = rt;
-                screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
-                screenShot.Apply();
-                camera.targetTexture = null;
-                RenderTexture.active = null; // JC: added to avoid errors
-                Destroy(rt);
+                if (!RatingSystem.IsEvolution)
+                {
+                    Camera camera = GameplayCam.GetCamera();
+                    int resWidth = camera.pixelWidth;
+                    int resHeight = camera.pixelHeight;
+                    RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
+                    camera.targetTexture = rt;
+                    Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
+                    camera.Render();
+                    RenderTexture.active = rt;
+                    screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+                    screenShot.Apply();
+                    camera.targetTexture = null;
+                    RenderTexture.active = null; // JC: added to avoid errors
+                    Destroy(rt);
 
-                // for saving screenshot as png
-                //byte[] bytes = screenShot.EncodeToPNG();
-                //string filename = string.Format("{0}/screenshots/screen_{1}x{2}_{3}.png",
-                //              Application.dataPath,
-                //              resWidth, resHeight,
-                //              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-                //System.IO.File.WriteAllBytes(filename, bytes);
-                //Debug.Log(string.Format("Took screenshot to: {0}", filename));
+                    // for saving screenshot as png
+                    //byte[] bytes = screenShot.EncodeToPNG();
+                    //string filename = string.Format("{0}/screenshots/screen_{1}x{2}_{3}.png",
+                    //              Application.dataPath,
+                    //              resWidth, resHeight,
+                    //              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+                    //System.IO.File.WriteAllBytes(filename, bytes);
+                    //Debug.Log(string.Format("Took screenshot to: {0}", filename));
 
-                // save sprite
-                Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
-                RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable, _pigs.Count > 0);
-                //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelData.Count);
-
+                    // save sprite
+                    Sprite levelSprite = Sprite.Create(screenShot, new Rect(0, 0, resWidth, resHeight), new Vector2(0, 0));
+                    RatingSystem.AddLevel(LevelList.Instance.CurrentIndex, levelSprite, HUD.Instance.GetScore(), timeToStable, _pigs.Count > 0);
+                    //Debug.Log(System.DateTime.Now.ToString() + "\tLevel Count: " + RatingSystem.levelData.Count);
+                }
+                else
+                {
+                    RatingSystem.keptForEvolution[RatingSystem.CurrentLSystemIndex].fitness += RatingSystem.GetLevelFitness(_pigs.Count > 0, HUD.Instance.GetScore(), timeToStable) / RatingSystem.MAX_LEVELS;
+                }
                 // go to next level
                 NextLevel();
             }
@@ -364,9 +372,16 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
         //if(LevelList.Instance.NextLevel() == null)
         //Debug.Log(LevelList.Instance.CurrentIndex + " >= " + ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS - 1));
-        if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null || (LevelList.Instance.CurrentIndex >= ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS)))
+        if (!RatingSystem.IsGenerating || LevelList.Instance.NextLevel() == null || (!RatingSystem.IsEvolution && (LevelList.Instance.CurrentIndex >= ((RatingSystem.CurrentLSystemIndex + 1) * RatingSystem.MAX_LEVELS))))
         {
-            ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+            if (RatingSystem.IsEvolution)
+            {
+                ABSceneManager.Instance.LoadScene("Evolution");
+            }
+            else
+            {
+                ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+            }
         }
         else
         {
