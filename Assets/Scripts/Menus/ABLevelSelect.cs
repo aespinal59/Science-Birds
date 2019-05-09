@@ -42,26 +42,24 @@ public class ABLevelSelect : ABMenu {
 
     public GameObject lSystemButtons;
     public GameObject levelButtons;
-    private List<GameObject> tempLevelButtons;
+    // private List<GameObject> tempLevelButtons;
 
 
-    public void InitializeLSystems()
+    public void InitializeLSystems(LSystemWrapper[] retrievedLSystems)
     {
         /* TODO: 
          * populate RatingSystem.lSystems with 6 LSystems
          */
         //SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation());
+
         //  Initialize 6 randomized LSystems, 3 rules each, 
         //      max size of successor being 5.
-        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++) {
-            RatingSystem.lSystems.Add(new LSystem(3, 5));
+
+        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++)
+        {
+            RatingSystem.lSystems.Add(LSystem.Decode(retrievedLSystems[i].GetString()));
             RatingSystem.GenerateXMLs(i, 5);
         }
-
-        //for (int i = 0; i < RatingSystem.lSystems.Count; ++i)
-        //{
-        //    RatingSystem.GenerateXMLs(i, 5); // hardcoded height
-        //}
     }
 
     public void LoadScreenshots(int lSystemIndex)
@@ -170,120 +168,42 @@ public class ABLevelSelect : ABMenu {
         return allXmls;
     }
 
-    // deprecated
-    public void DisplayLSystems()
-    {
-        lSystemButtons.SetActive(true);
-        levelButtons.SetActive(false);
+    // Use this for initialization
+    void Start () {
+        //SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems => {
+        //if (retrievedLSystems == null)
+        //{
 
-        foreach (GameObject obj in tempLevelButtons)
+        if (RatingSystem.lSystems.Count <= 0)
         {
-            Destroy(obj);
-        }
-    }
-
-    // deprecated
-    public void DisplayLevels(int lSystemIndex)
-    {
-        if (RatingSystem.levelData[lSystemIndex][0].levelSprite == null)
-        {
-            LoadScreenshots(lSystemIndex);
+            Debug.Log("Initializing LSystems...");
+            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems =>
+            {
+                Debug.Log("got 'em");
+                foreach (LSystemWrapper w in retrievedLSystems)
+                {
+                    Debug.Log(w.GetString());
+                }
+                InitializeLSystems(retrievedLSystems);
+                loadXMLs();
+                LoadScreenshots(0);
+            }));
         }
         else
         {
-            lSystemButtons.SetActive(false);
-            levelButtons.SetActive(true);
-
-            RatingSystem.CurrentLSystemIndex = lSystemIndex;
-            int j = 0;
+            for (int i = 0; i < RatingSystem.levelData.Count; ++i)
+            {
+                if (RatingSystem.levelData[i][0].levelSprite == null)
+                {
+                    //Debug.Log("LSystem " + i + " does not have screenshots generated");
+                    LoadScreenshots(i);
+                    return;
+                }
+            }
             RatingSystem.EndGeneratingScreenshots();
-            for (int i = 0; i < RatingSystem.MAX_LEVELS; i++)
-            {
-
-                GameObject obj = Instantiate(_levelSelector, Vector2.zero, Quaternion.identity) as GameObject;
-                obj.GetComponent<Image>().sprite = RatingSystem.levelData[RatingSystem.CurrentLSystemIndex][i].levelSprite;
-
-                obj.transform.SetParent(_canvas.transform, false);
-                obj.transform.localPosition = Vector3.zero;
-                obj.transform.localScale = new Vector3(0.16f, 0.16f, 1f);
-
-                //Vector2 pos = _startPos + new Vector2((i % _lines) * _buttonSize.x, j * _buttonSize.y);
-
-                Vector2 pos = _startPos + new Vector2((i % _lines) * (_camera.scaledPixelWidth / 3.1f), j * (_camera.scaledPixelHeight / 3.1f));
-                obj.transform.position = pos;
-
-                //Debug.Log(obj.transform.position);
-
-                ABLevelSelector sel = obj.AddComponent<ABLevelSelector>();
-                sel.LevelIndex = lSystemIndex * RatingSystem.MAX_LEVELS + i;
-
-                Button selectButton = obj.GetComponent<Button>();
-
-                selectButton.onClick.AddListener(delegate
-                {
-                    LoadNextScene("GameWorld", true, sel.UpdateLevelList);
-                });
-
-                Text selectText = selectButton.GetComponentInChildren<Text>();
-                selectText.text = "";// + (i + 1);
-
-                // create rating button
-                GameObject star = Instantiate(_ratingStar, Vector2.zero, Quaternion.identity) as GameObject;
-                star.transform.SetParent(_canvas.transform, false);
-                star.transform.localPosition = Vector3.zero;
-                star.transform.localScale = new Vector3(0.8f, 0.8f, 1f);
-
-                star.transform.position = pos + new Vector2(-_camera.scaledPixelWidth / 8f, _camera.scaledPixelHeight / 10f);
-
-                if (RatingSystem.levelData[RatingSystem.CurrentLSystemIndex][i].pressedButton)
-                {
-                    star.GetComponent<Image>().color = Color.yellow;
-                }
-                else
-                {
-                    star.GetComponent<Image>().color = Color.black;
-                }
-                star.GetComponent<Button>().onClick.AddListener(delegate
-                {
-                    RatingSystem.RateLevel(sel.LevelIndex, star);
-                //LoadNextScene("GameWorld", true, sel.UpdateLevelList);
-            });
-
-                tempLevelButtons.Add(obj);
-                tempLevelButtons.Add(star);
-
-                if ((i + 1) % _lines == 0)
-                    j--;
-            }
         }
-    }
-
-    // Use this for initialization
-    void Start () {
-        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems => {
-            if (retrievedLSystems == null)
-            {
-                tempLevelButtons = new List<GameObject>();
-
-                if (RatingSystem.lSystems.Count <= 0)
-                {
-                    Debug.Log("Initializing LSystems...");
-                    InitializeLSystems();
-                    loadXMLs();
-                }
-
-                for (int i = 0; i < RatingSystem.levelData.Count; ++i)
-                {
-                    if (RatingSystem.levelData[i][0].levelSprite == null)
-                    {
-                        //Debug.Log("LSystem " + i + " does not have screenshots generated");
-                        LoadScreenshots(i);
-                        return;
-                    }
-                }
-                RatingSystem.EndGeneratingScreenshots();
-            }
-        }));
+            //}
+        //}));
         //Debug.Log("Done generating all screenshots");
 
         //loadXMLs();

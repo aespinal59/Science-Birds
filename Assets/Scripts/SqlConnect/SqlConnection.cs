@@ -86,6 +86,11 @@ public class LSystemWrapper
     public bool IsStarred;
     public string Axiom;
     public string Rules;
+
+    public string GetString()
+    {
+        return Axiom + '~' + Rules;
+    }
 }
 
 [Serializable]
