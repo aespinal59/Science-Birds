@@ -17,6 +17,12 @@ public class LSystem
     //  Change these to private.
     public int id;
 
+    public static readonly int NUM_RULES = 10;
+
+    public static readonly int MAX_WIDTH = 3;
+
+    public static readonly int MAX_HEIGHT = 5;
+
     public int maxHeight;
 
     public int maxWidth = 5;
