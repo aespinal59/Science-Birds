@@ -169,9 +169,16 @@ public class LSystem
         rules = GenerateRandomRules(numRule, maxW);
 
 
-        //Get random axiom from rule conditions
-        List<string> possibleAxioms = new List<string>(rules.Keys);
-        string axiom = possibleAxioms[random.Next(0, possibleAxioms.Count)];
+        //  Get an axiom from a rule.
+        string axiom = "A"; //  Default
+        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in rules)
+        {
+            if (ruleset.Value.Item1.Count != 0)
+            {
+                axiom = ruleset.Key;
+                break;
+            }
+        }
 
         //Initialize LSystem
 
