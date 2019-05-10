@@ -18,17 +18,18 @@ public class SqlConnection
     {
         PostLSystemHelper helper = new PostLSystemHelper();
         helper.PopulationId = PopulationId.Value;
-        helper.ParentId = ParentId;
+        helper.ParentId = ParentId.Value;
         helper.Hash = hash;
         helper.LSystems = LSystems;
         var jsonString = JsonUtility.ToJson(helper);
 
         Debug.Log("Uploading: " + jsonString);
-        using (UnityWebRequest post = UnityWebRequest.Post(addRatingURL, jsonString))
+        using (UnityWebRequest post = UnityWebRequest.Put(addRatingURL, jsonString))
         {
-            post.SetRequestHeader("Content-Type", "application/json");
-            post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
-            post.uploadHandler.contentType = "application/json";
+            post.method = "POST";
+            post.SetRequestHeader("X-Requested-With", "XMLHttpRequest");
+            //post.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonString));
+            //post.uploadHandler.contentType = "application/json";
             //post.downloadHandler = new DownloadHandlerBuffer();
             //post.chunkedTransfer = false;
             yield return post.SendWebRequest();
@@ -46,25 +47,37 @@ public class SqlConnection
     }
 
     // Get population from MYSQL database
-    public static IEnumerator GetPopulation()
+    public static IEnumerator GetPopulation(bool retreiveNewSet, Action<LSystemWrapper[]> done)
     {
-        UnityWebRequest request = new UnityWebRequest(getPopulationURL + (ParentId != null ? "?ParentId=" + ParentId?.ToString() : ""));
-        request.downloadHandler = new DownloadHandlerBuffer();
-        Debug.Log("Retreiving Population");
-        yield return request.SendWebRequest();
+        Request:
+            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?GetNewSet=" + (retreiveNewSet ? 1 : 0) + (ParentId != null ? "&ParentId=" + ParentId?.ToString() : ""));
+            request.downloadHandler = new DownloadHandlerBuffer();
+            Debug.Log("Retreiving Population");
+            yield return request.SendWebRequest();
 
+        LSystemWrapper[] retreivedLSystems = null;
         if (request.error != null)
         {
             Debug.LogError("There was an error retreiving the population: " + request.error);
         }
         else
         {
-            string response = request.downloadHandler.text;
-            Debug.Log(response);
-            var JSONObj = JsonUtility.FromJson<Population>(response);
-            PopulationId = JSONObj.PopulationId;
-            hash = JSONObj.Hash;
+            try
+            {
+                string response = request.downloadHandler.text;
+                Debug.Log(response);
+                var JSONObj = JsonUtility.FromJson<PostLSystemHelper>(response);
+                PopulationId = JSONObj.PopulationId;
+                hash = JSONObj.Hash;
+                retreivedLSystems = JSONObj.LSystems;
+            }
+            catch
+            {
+                goto Request;
+            }
         }
+
+        done(retreivedLSystems);
     }
 }
 
@@ -82,6 +95,11 @@ public class LSystemWrapper
     public bool IsStarred;
     public string Axiom;
     public string Rules;
+
+    public string GetString()
+    {
+        return Axiom + '~' + Rules;
+    }
 }
 
 [Serializable]
@@ -89,6 +107,6 @@ public class PostLSystemHelper
 {
     public int PopulationId;
     public string Hash;
-    public int? ParentId;
+    public int ParentId = -1;
     public LSystemWrapper[] LSystems;
 }
