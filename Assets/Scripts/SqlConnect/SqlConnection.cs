@@ -18,7 +18,10 @@ public class SqlConnection
     {
         PostLSystemHelper helper = new PostLSystemHelper();
         helper.PopulationId = PopulationId.Value;
-        helper.ParentId = ParentId.Value;
+        if (ParentId.HasValue)
+        {
+            helper.ParentId = ParentId.Value;
+        }
         helper.Hash = hash;
         helper.LSystems = LSystems;
         var jsonString = JsonUtility.ToJson(helper);
