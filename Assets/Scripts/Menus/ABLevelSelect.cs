@@ -76,12 +76,23 @@ public class ABLevelSelect : ABMenu {
             }
         }
         // TODO: MUST HAVE A BACKUP PLAN IF PLAYER DOES NOT STAR ENOUGH LEVELS
+        int numLSystemsNeeded = 0;
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(numLSystemsNeeded, GetPopulationCallBack));
+    }
+
+    /// <summary>
+    /// When its the sql call is done
+    /// retrievedLSystems will be null numLSystemsNeeded was 0
+    /// </summary>
+    /// <param name="retrievedLSystems"></param>
+    public void GetPopulationCallBack(LSystemWrapper[] retrievedLSystems)
+    {
 
         // keptforevolution will contain a list of levels to run evolution on
         // TODO: Run evolution here and replace RatingSystem.keptForEvolution with the list of newly created LSystems
 
         RatingSystem.ClearAll();
-       
+
         //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
@@ -162,7 +173,7 @@ public class ABLevelSelect : ABMenu {
         if (RatingSystem.lSystems.Count <= 0)
         {
             Debug.Log("Initializing LSystems...");
-            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, 12, retrievedLSystems =>
+            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(12, retrievedLSystems =>
             {
                 Debug.Log("got 'em");
                 foreach (LSystemWrapper w in retrievedLSystems)

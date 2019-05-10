@@ -47,10 +47,10 @@ public class SqlConnection
     }
 
     // Get population from MYSQL database
-    public static IEnumerator GetPopulation(bool retreiveNewSet, int numLSystems, Action<LSystemWrapper[]> done)
+    public static IEnumerator GetPopulation(int numLSystems, Action<LSystemWrapper[]> done)
     {
         Request:
-            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?GetNewSet=" + (retreiveNewSet ? 1 : 0) + "&NumLSystems=" + numLSystems + 
+            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?NumLSystems=" + numLSystems + 
                 (ParentId != null ? "&ParentId=" + ParentId?.ToString() : "") + 
                 ((ParentId.HasValue && ParentId.Value == PopulationId) || (!ParentId.HasValue && PopulationId != null) ? "&PopulationId=" + PopulationId : ""));
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -72,7 +72,7 @@ public class SqlConnection
                 PopulationId = JSONObj.PopulationId;
                 hash = JSONObj.Hash;
 
-                if (retreiveNewSet && (JSONObj.LSystems == null || JSONObj.LSystems.Length != numLSystems))
+                if (numLSystems > 0 && (JSONObj.LSystems == null || JSONObj.LSystems.Length != numLSystems))
                 {
                     goto Request;
                 }
