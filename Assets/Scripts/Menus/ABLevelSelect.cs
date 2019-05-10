@@ -162,7 +162,7 @@ public class ABLevelSelect : ABMenu {
         if (RatingSystem.lSystems.Count <= 0)
         {
             Debug.Log("Initializing LSystems...");
-            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, retrievedLSystems =>
+            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(true, 12, retrievedLSystems =>
             {
                 Debug.Log("got 'em");
                 foreach (LSystemWrapper w in retrievedLSystems)

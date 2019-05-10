@@ -47,12 +47,14 @@ public class SqlConnection
     }
 
     // Get population from MYSQL database
-    public static IEnumerator GetPopulation(bool retreiveNewSet, Action<LSystemWrapper[]> done)
+    public static IEnumerator GetPopulation(bool retreiveNewSet, int numLSystems, Action<LSystemWrapper[]> done)
     {
         Request:
-            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?GetNewSet=" + (retreiveNewSet ? 1 : 0) + (ParentId != null ? "&ParentId=" + ParentId?.ToString() : ""));
+            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?GetNewSet=" + (retreiveNewSet ? 1 : 0) + "&NumLSystems=" + numLSystems + 
+                (ParentId != null ? "&ParentId=" + ParentId?.ToString() : "") + 
+                ((ParentId.HasValue && ParentId.Value == PopulationId) || (!ParentId.HasValue && PopulationId != null) ? "&PopulationId=" + PopulationId : ""));
             request.downloadHandler = new DownloadHandlerBuffer();
-            Debug.Log("Retreiving Population");
+            Debug.Log("Retreiving Population: " + request.url);
             yield return request.SendWebRequest();
 
         LSystemWrapper[] retreivedLSystems = null;
@@ -69,6 +71,11 @@ public class SqlConnection
                 var JSONObj = JsonUtility.FromJson<PostLSystemHelper>(response);
                 PopulationId = JSONObj.PopulationId;
                 hash = JSONObj.Hash;
+
+                if (retreiveNewSet && (JSONObj.LSystems == null || JSONObj.LSystems.Length != numLSystems))
+                {
+                    goto Request;
+                }
                 retreivedLSystems = JSONObj.LSystems;
             }
             catch
