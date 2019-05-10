@@ -47,9 +47,17 @@ public class ABLevelSelect : ABMenu {
 
     public void InitializeLSystems(LSystemWrapper[] retrievedLSystems)
     {
+        int retrieved = retrievedLSystems?.Length ?? 0;
         for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; i++)
         {
-            RatingSystem.lSystems.Add(LSystem.Decode(retrievedLSystems[i].GetString()));
+            if (i < retrieved)
+            {
+                RatingSystem.lSystems.Add(LSystem.Decode(retrievedLSystems[i].GetString()));
+            }
+            else
+            {
+                RatingSystem.lSystems.Add(new LSystem(10, 3));
+            }
             RatingSystem.GenerateXMLs(i, 5);
         }
     }
