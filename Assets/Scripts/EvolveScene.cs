@@ -5,6 +5,14 @@ using UnityEngine;
 public class EvolveScene : MonoBehaviour
 {
 
+    //  Evolution parameters - constant for now.
+    public int NUM_RULES = 10;
+    public int MAX_WIDTH = 3;
+    public int MAX_HEIGHT = 5;
+    public double MUT_RATE = 0.5;
+    public int MU = 5;
+    public int LAMBDA = 7;
+
     public void LoadXMLs(List<string> xmls)
     {
         string[] xmlArr = new string[xmls.Count];
@@ -37,6 +45,21 @@ public class EvolveScene : MonoBehaviour
 
         // TODO: Right here is when you have all the fitnesses for each lsystem in the RatingSystem.keptForEvolution
         // You can do more evolution here or pick the best 12 lSystems to put into RatingSystem.lSystems (for now just pick 12 lsystems, I'll make it possible to do more iterations tomorrow or something)
+        List<LSystem> pop = new List<LSystem>();
+        List<float> fit = new List<float>();
+
+        //  Getting lsystem and fitness
+        foreach (RatingSystem.LSystemEvolution l in RatingSystem.keptForEvolution) {
+            pop.Add(l.lSystem);
+            fit.Add(l.fitness);
+        }
+
+        //  Initialize LSystem evolver.
+        LSystemEvolver evolver = new LSystemEvolver(NUM_RULES, MAX_WIDTH, MAX_HEIGHT, MUT_RATE);
+
+        //  Evolve population and store.
+        RatingSystem.lSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
+
 
         // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
         // RatingSystem.keptForEvolution.Clear(); // maybe do this?

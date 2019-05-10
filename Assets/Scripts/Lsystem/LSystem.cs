@@ -32,6 +32,7 @@ public class LSystem
     public List<List<List<double>>> blockCoordinates;
 
     //Change to static
+    /*
     public static Dictionary<string, List<double>> blocks = new Dictionary<string, List<double>>
         {
             {"1", new List<double> {0.84 + 0.2, 0.84}},
@@ -76,10 +77,28 @@ public class LSystem
             {"%", new List<double> {0.50 + 0.2, 0.50}},
             {"&", new List<double> {0.50 + 0.2, 0.50}}
         };
-
+    */
+    public static Dictionary<string, List<double>> blocks = new Dictionary<string, List<double>> {
+            {"1", new List<double> {0.84 + 0.2, 0.84}},
+            {"2", new List<double> {0.85 + 0.2, 0.43}},
+            {"3", new List<double> {0.43 + 0.2, 0.85}},
+            {"4", new List<double> {0.43 + 0.2, 0.43}},
+            {"5", new List<double> {0.22 + 0.2, 0.22}},
+            {"6", new List<double> {0.43 + 0.2, 0.22}},
+            {"7", new List<double> {0.22 + 0.2, 0.43}},
+            {"8", new List<double> {0.85 + 0.2, 0.22}},
+            {"9", new List<double> {0.22 + 0.2, 0.85}},
+            {"A", new List<double> {1.68 + 0.2, 0.22}},
+            {"B", new List<double> {0.22 + 0.2, 1.68}},
+            {"C", new List<double> {2.06 + 0.2, 0.22}},
+            {"D", new List<double> {0.22 + 0.2, 2.06}},
+            {"%", new List<double> {0.50 + 0.2, 0.50}},
+            {"&", new List<double> {0.50 + 0.2, 0.50}}
+    };
 
     //  TODO: fix issue with air blocks and height checks
     //Change to static
+    /* Dictionary containing block names and materials
     public static Dictionary<string, string> block_names = new Dictionary<string, string> {
         //{"0", "Air"},
         {"1", "SquareHole wood"},
@@ -124,8 +143,27 @@ public class LSystem
         {"%", "BasicSmall" },
         {"&", "TNT" }
     };
+    */
+    public static Dictionary<string, string> block_names = new Dictionary<string, string> {
+        //{"0", "Air"},
+        {"1", "SquareHole"},
+        {"2", "RectFat"},
+        {"3","RectFat"},
+        {"4","SquareSmall"},
+        {"5", "SquareTiny"},
+        {"6", "RectTiny"},
+        {"7", "RectTiny"},
+        {"8", "RectSmall"},
+        {"9", "RectSmall"},
+        {"A", "RectMedium"},
+        {"B", "RectMedium"},
+        {"C", "RectBig"},
+        {"D", "RectBig"},
+        {"%", "BasicSmall" },
+        {"&", "TNT" }
+    };
 
-    //Constructor with pre-defined rules.
+        //Constructor with pre-defined rules.
     public LSystem(Dictionary<string, Tuple<List<string>, List<double>>> r, int numRule, int maxW)
     {
         //  Get an axiom from a rule.
@@ -615,9 +653,18 @@ public class LSystem
                 }
                 else
                 {
+                    /*  For blocktype and material in block name.
                     string[] blockAndMaterial = LSystem.block_names[symbol].Split(' ');
                     string blockType = blockAndMaterial[0];
                     string material = blockAndMaterial[1];
+                    double x = blockCoordinates[rowIndex][colIndex][0];
+                    double y = blockCoordinates[rowIndex][colIndex][1];
+                    double rotation = 0;
+                    */
+
+                    string[] materials = { "wood", "ice", "stone" };
+                    string blockType = LSystem.block_names[symbol];
+                    string material = materials[random.Next(0, 3)];
                     double x = blockCoordinates[rowIndex][colIndex][0];
                     double y = blockCoordinates[rowIndex][colIndex][1];
                     double rotation = 0;

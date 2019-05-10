@@ -48,10 +48,10 @@ class LSystemEvolver
     }
 
     //  Evolves population using fitness values and mu + lambda genetic algorithm.
-    public List<LSystem> EvolvePopulation(List<LSystem> population, double[] fitness, int mu, int lambda)
+    public List<LSystem> EvolvePopulation(List<LSystem> population, List<float> fitness, int mu, int lambda)
     {
         //  Check if length of fitness array matches population size
-        if (fitness.Length != population.Count)
+        if (fitness.Count != population.Count)
         {
             Console.WriteLine("Error: Invalid fitness size.");
             return population;
