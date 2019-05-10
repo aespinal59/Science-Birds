@@ -72,10 +72,10 @@ public class SqlConnection
                 PopulationId = JSONObj.PopulationId;
                 hash = JSONObj.Hash;
 
-                if (numLSystems > 0 && (JSONObj.LSystems == null || JSONObj.LSystems.Length != numLSystems))
-                {
-                    goto Request;
-                }
+                //if (numLSystems > 0 && (JSONObj.LSystems == null || JSONObj.LSystems.Length != numLSystems))
+                //{
+                //    goto Request;
+                //}
                 retreivedLSystems = JSONObj.LSystems;
             }
             catch
