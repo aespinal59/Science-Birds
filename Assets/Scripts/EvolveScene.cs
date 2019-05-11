@@ -13,6 +13,8 @@ public class EvolveScene : MonoBehaviour
     public static readonly int MU = 5;
     public static readonly int LAMBDA = 7;
 
+    public static int iterations = 1;
+
     public void LoadXMLs(List<string> xmls)
     {
         string[] xmlArr = new string[xmls.Count];
@@ -49,7 +51,8 @@ public class EvolveScene : MonoBehaviour
         List<float> fit = new List<float>();
 
         //  Getting lsystem and fitness
-        foreach (RatingSystem.LSystemEvolution l in RatingSystem.keptForEvolution) {
+        foreach (RatingSystem.LSystemEvolution l in RatingSystem.keptForEvolution)
+        {
             pop.Add(l.lSystem);
             fit.Add(l.fitness);
         }
@@ -58,19 +61,38 @@ public class EvolveScene : MonoBehaviour
         LSystemEvolver evolver = new LSystemEvolver(NUM_RULES, MAX_WIDTH, MAX_HEIGHT, MUT_RATE);
 
         //  Evolve population and store.
-        RatingSystem.lSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
-        Debug.Log(RatingSystem.lSystems.Count);
+        List<LSystem> evolvedLSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
 
-        // generate and load the XMLs
-        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+        Debug.Log(evolvedLSystems.Count);
+        RatingSystem.keptForEvolution.Clear();
+        --iterations;
+
+        Debug.Log("finished iteration " + iterations);
+        if (iterations > 0)
         {
-            RatingSystem.GenerateXMLs(i, 5);
+            // do it again
+            foreach (LSystem l in evolvedLSystems)
+            {
+                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(l));
+            }
+            ABSceneManager.Instance.LoadScene("Evolution");
         }
-        ABLevelSelect.loadXMLs();
+        else
+        {
+            RatingSystem.lSystems = evolvedLSystems;
+            // generate and load the XMLs
+            for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+            {
+                RatingSystem.GenerateXMLs(i, 5);
+            }
+            ABLevelSelect.loadXMLs();
 
 
-        // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
-        RatingSystem.keptForEvolution.Clear(); // maybe do this?
-        ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+
+            // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
+            RatingSystem.keptForEvolution.Clear(); // maybe do this?
+            ABSceneManager.Instance.LoadScene("LevelSelectMenu");
+
+        }
     }
 }

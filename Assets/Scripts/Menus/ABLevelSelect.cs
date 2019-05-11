@@ -96,25 +96,37 @@ public class ABLevelSelect : ABMenu {
     public void GetPopulationCallBack(LSystemWrapper[] retrievedLSystems)
     {
 
-        int retrieved = retrievedLSystems?.Length ?? 0;
+        //int retrieved = retrievedLSystems?.Length ?? 0;
 
-        int kept = RatingSystem.keptForEvolution.Count;
-        for (int i = kept; i < RatingSystem.MAX_LSYSTEMS; i++)
+        //int kept = RatingSystem.keptForEvolution.Count;
+
+        foreach (LSystemWrapper wrapper in retrievedLSystems)
         {
-            if (i - kept < retrieved)
-            {
-                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(LSystem.Decode(retrievedLSystems[i].GetString())));
-            }
-            else
-            {
-                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(new LSystem(10, 3)));
-            }
+            RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(LSystem.Decode(wrapper.GetString())));
         }
+
+        while (RatingSystem.keptForEvolution.Count < RatingSystem.MAX_LSYSTEMS)
+        {
+            RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(new LSystem(10, 3)));
+        }
+
+        //for (int i = kept; i < RatingSystem.MAX_LSYSTEMS; i++)
+        //{
+        //    if (i - kept < retrieved)
+        //    {
+        //        RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(LSystem.Decode(retrievedLSystems[i].GetString())));
+        //    }
+        //    else
+        //    {
+        //        RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(new LSystem(10, 3)));
+        //    }
+        //}
         // keptforevolution will contain a list of levels to run evolution on
         // TODO: Run evolution here and replace RatingSystem.keptForEvolution with the list of newly created LSystems
 
         RatingSystem.ClearAll();
 
+        EvolveScene.iterations = 5;
         //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
