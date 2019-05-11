@@ -6,12 +6,12 @@ public class EvolveScene : MonoBehaviour
 {
 
     //  Evolution parameters - constant for now.
-    public int NUM_RULES = 10;
-    public int MAX_WIDTH = 3;
-    public int MAX_HEIGHT = 5;
-    public double MUT_RATE = 0.5;
-    public int MU = 5;
-    public int LAMBDA = 7;
+    public static readonly int NUM_RULES = 10;
+    public static readonly int MAX_WIDTH = 3;
+    public static readonly int MAX_HEIGHT = 5;
+    public static readonly double MUT_RATE = 0.5;
+    public static readonly int MU = 5;
+    public static readonly int LAMBDA = 7;
 
     public void LoadXMLs(List<string> xmls)
     {
@@ -59,6 +59,7 @@ public class EvolveScene : MonoBehaviour
 
         //  Evolve population and store.
         RatingSystem.lSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
+        Debug.Log(RatingSystem.lSystems.Count);
 
 
         // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
