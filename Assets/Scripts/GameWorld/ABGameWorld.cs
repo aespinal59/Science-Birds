@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 public class ABGameWorld : ABSingleton<ABGameWorld> {
 
-    private static readonly float STABILITY_TIMEOUT = 3f;
+    private static readonly float STABILITY_TIMEOUT = 20f;
 
 	static int _levelTimesTried;
 
