@@ -70,7 +70,7 @@ public class EvolveScene : MonoBehaviour
 
 
         // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
-        // RatingSystem.keptForEvolution.Clear(); // maybe do this?
+        RatingSystem.keptForEvolution.Clear(); // maybe do this?
         ABSceneManager.Instance.LoadScene("LevelSelectMenu");
     }
 }
