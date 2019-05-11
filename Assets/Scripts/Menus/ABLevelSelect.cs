@@ -103,7 +103,7 @@ public class ABLevelSelect : ABMenu {
         {
             if (i - kept < retrieved)
             {
-                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(LSystem.Decode(retrievedLSystems[i].GetString()));
+                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(LSystem.Decode(retrievedLSystems[i].GetString())));
             }
             else
             {

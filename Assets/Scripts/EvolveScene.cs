@@ -61,6 +61,13 @@ public class EvolveScene : MonoBehaviour
         RatingSystem.lSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
         Debug.Log(RatingSystem.lSystems.Count);
 
+        // generate and load the XMLs
+        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+        {
+            RatingSystem.GenerateXMLs(i, 5);
+        }
+        ABLevelSelect.loadXMLs();
+
 
         // if you're done, then return to levelselectmenu MAKE SURE YOU HAVE 12 LSYSTEMS IN RATINGSYSTEM.LSYSTEM
         // RatingSystem.keptForEvolution.Clear(); // maybe do this?
