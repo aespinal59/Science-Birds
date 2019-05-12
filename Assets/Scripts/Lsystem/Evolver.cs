@@ -89,7 +89,131 @@ class LSystemEvolver
 
     }
 
+    static Random rand = new Random();
 
+    //  Evolves population using map elites
+    public List<LSystem> EvolvePopulationMAPElitesEdition(List<LSystem> population, List<float> fitness, int iterations)
+    {
+        //  Check if length of fitness array matches population size
+        if (fitness.Count != population.Count)
+        {
+            Console.WriteLine("Error: Invalid fitness size.");
+            return population;
+        }
 
+        //Initialize solutions and performances
+        Dictionary<MapKey, LSystem> solutions = new Dictionary<MapKey, LSystem>();
+        Dictionary<MapKey, double> perfomances = new Dictionary<MapKey, double>();
 
+        //  Sett the fitness values for the population and add to solutions and performances
+        for (int popIndex = 0; popIndex < population.Count; popIndex++)
+        {
+            population[popIndex].SetFitness(fitness[popIndex]);
+        }
+
+        LSystem lSystem = null;
+        double performance = 0;
+        for (int i = 0; i < iterations; i++)
+        {
+            if (i < population.Count)
+            {
+                //Initialize with the lsystems sent to function
+                lSystem = population[i];
+            }
+            else
+            {
+                //Get random lsystem from solutions
+                lSystem = solutions.Select(x => x.Value).ToArray()[rand.Next(solutions.Count)];
+                //Mutate
+                lSystem = Mutation(lSystem);
+            }
+
+            MapKey key = KeyExtracter(lSystem);
+            //TODO: Get fitness of new mutations
+            performance = lSystem.fitness; //Get the fitness for this thing
+
+            if (!solutions.ContainsKey(key) ||
+                (solutions.ContainsKey(key) && perfomances[key] < performance))
+            {
+                solutions[key] = lSystem;
+                perfomances[key] = performance;
+            }
+        }
+
+        //Get LSystems, order by fitness desc, and only take max. There may be more.
+        List<LSystem> newPopulation =
+        solutions.Select(x => x.Value).OrderByDescending(y => y.fitness).Take(RatingSystem.MAX_LSYSTEMS).ToList();
+
+        return newPopulation;
+
+    }
+
+    private MapKey KeyExtracter(LSystem lSystem)
+    {
+        MapKey key = new MapKey();
+
+        //Retreive average values from lsystem and insert into key
+        //TODO: this is an example, figure out what features you want and how to get avg of levels generate for values
+        key.FeatureSpace["Pigs"] = 5;
+        key.FeatureSpace["TNT"] = 3;
+
+        return key;
+    }
+
+    public class MapKey
+    {
+        private Dictionary<string, int> _FeatureSpace;
+        public Dictionary<string, int> FeatureSpace
+        {
+            get
+            {
+                if (_FeatureSpace == null)
+                    _FeatureSpace = new Dictionary<string, int>();
+                return _FeatureSpace;
+            }
+        }
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            //       
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            MapKey other = obj as MapKey;
+            if (other == null)
+                return false;
+
+            var keys = FeatureSpace.Keys.Union(other.FeatureSpace.Keys);
+            foreach (string key in keys)
+            {
+                if (!FeatureSpace.ContainsKey(key) || !other.FeatureSpace.ContainsKey(key))
+                    return false;
+
+                if (FeatureSpace[key] != other.FeatureSpace[key])
+                    return false;
+            }
+            return true;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            int hashCode = 0;
+
+            foreach (var pair in FeatureSpace)
+            {
+                hashCode = pair.Key.GetHashCode() + pair.Value.GetHashCode();
+            }
+            return hashCode;
+        }
+    }
 }
