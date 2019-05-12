@@ -104,12 +104,14 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
             hudObject.SetActive(false);
             stabilityCounter = 0.3f;
             timeToStable = 0f;
+            Physics2D.autoSimulation = false;
         }
         else
         {
             //Debug.Log("Not generating screenshots for level " + LevelList.Instance.CurrentIndex);
             HideViewCam.GetCamera().enabled = false;
             hudObject.SetActive(true);
+            Physics2D.autoSimulation = true;
         }
 
         _pigs = new List<ABPig>();
@@ -254,10 +256,21 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 		StartWorld();
 	}
 
-	// Update is called once per frame
-	void Update () {
+    private float timer;
+    // Update is called once per frame
+    void Update () {
         if (RatingSystem.IsGenerating)
         {
+            timer += Time.deltaTime;
+
+            // Catch up with the game time.
+            // Advance the physics simulation in portions of Time.fixedDeltaTime
+            // Note that generally, we don't want to pass variable delta to Simulate as that leads to unstable results.
+            while (timer >= Time.fixedDeltaTime)
+            {
+                timer -= Time.fixedDeltaTime;
+                Physics.Simulate(Time.fixedDeltaTime);
+            }
             //Debug.Log(System.DateTime.Now.ToString() + "\tStability: " + GetLevelStability());
             // Wait until level is stable, then take screenshot
             if (stabilityCounter <= 0f && (IsLevelStable() || timeToStable >= STABILITY_TIMEOUT))
