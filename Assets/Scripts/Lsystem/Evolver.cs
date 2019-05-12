@@ -137,9 +137,12 @@ class LSystemEvolver
 
         //Retreive average values from lsystem and insert into key
         //TODO: this is an example, figure out what features you want and how to get avg of levels generate for values
-        key.FeatureSpace["Pig"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "Pig")).Average());
-        key.FeatureSpace["TNT"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "TNT")).Average());
-        key.FeatureSpace["Block"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "Block")).Average());
+        //key.FeatureSpace["Pig"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "Pig")).Average());
+        //key.FeatureSpace["TNT"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "TNT")).Average());
+        foreach (string value in LSystem.block_names.Values.Distinct().Union(new string[]{ "wood", "ice", "stone" }))
+        {
+            key.FeatureSpace[value] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, value)).Average());
+        }
 
         return key;
     }
