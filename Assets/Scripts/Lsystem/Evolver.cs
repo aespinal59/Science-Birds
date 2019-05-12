@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 class LSystemEvolver
 {
@@ -89,48 +90,26 @@ class LSystemEvolver
 
     }
 
+
+
+
+
     static Random rand = new Random();
+    public static Dictionary<MapKey, LSystem> solutions = new Dictionary<MapKey, LSystem>();
+    public static Dictionary<MapKey, double> perfomances = new Dictionary<MapKey, double>();
 
     //  Evolves population using map elites
-    public List<LSystem> EvolvePopulationMAPElitesEdition(List<LSystem> population, List<float> fitness, int iterations)
+    public List<LSystem> EvolvePopulationMAPElitesEdition(List<RatingSystem.LSystemEvolution> ratedLSystems)
     {
-        //  Check if length of fitness array matches population size
-        if (fitness.Count != population.Count)
-        {
-            Console.WriteLine("Error: Invalid fitness size.");
-            return population;
-        }
-
-        //Initialize solutions and performances
-        Dictionary<MapKey, LSystem> solutions = new Dictionary<MapKey, LSystem>();
-        Dictionary<MapKey, double> perfomances = new Dictionary<MapKey, double>();
-
-        //  Sett the fitness values for the population and add to solutions and performances
-        for (int popIndex = 0; popIndex < population.Count; popIndex++)
-        {
-            population[popIndex].SetFitness(fitness[popIndex]);
-        }
-
         LSystem lSystem = null;
         double performance = 0;
-        for (int i = 0; i < iterations; i++)
+        //  Sett the fitness values for the population and add to solutions and performances
+        foreach (RatingSystem.LSystemEvolution ratedLSystem in ratedLSystems)
         {
-            if (i < population.Count)
-            {
-                //Initialize with the lsystems sent to function
-                lSystem = population[i];
-            }
-            else
-            {
-                //Get random lsystem from solutions
-                lSystem = solutions.Select(x => x.Value).ToArray()[rand.Next(solutions.Count)];
-                //Mutate
-                lSystem = Mutation(lSystem);
-            }
-
-            MapKey key = KeyExtracter(lSystem);
-            //TODO: Get fitness of new mutations
+            lSystem = ratedLSystem.lSystem;
+            performance = ratedLSystem.fitness;
             performance = lSystem.fitness; //Get the fitness for this thing
+            MapKey key = KeyExtracter(ratedLSystem);
 
             if (!solutions.ContainsKey(key) ||
                 (solutions.ContainsKey(key) && perfomances[key] < performance))
@@ -142,22 +121,37 @@ class LSystemEvolver
 
         //Get LSystems, order by fitness desc, and only take max. There may be more.
         List<LSystem> newPopulation =
-        solutions.Select(x => x.Value).OrderByDescending(y => y.fitness).Take(RatingSystem.MAX_LSYSTEMS).ToList();
+        solutions.Select(x => x.Value).OrderByDescending(y => y.fitness).Select(z => Mutation(z)).Take(RatingSystem.MAX_LSYSTEMS).ToList();
 
+        while (newPopulation.Count < RatingSystem.MAX_LSYSTEMS)
+        {
+            newPopulation.Add(Mutation(solutions.Select(x => x.Value).ToArray()[rand.Next(solutions.Count)]));
+        }
         return newPopulation;
 
     }
 
-    private MapKey KeyExtracter(LSystem lSystem)
+    private MapKey KeyExtracter(RatingSystem.LSystemEvolution ratedLSystem)
     {
         MapKey key = new MapKey();
 
         //Retreive average values from lsystem and insert into key
         //TODO: this is an example, figure out what features you want and how to get avg of levels generate for values
-        key.FeatureSpace["Pigs"] = 5;
-        key.FeatureSpace["TNT"] = 3;
+        key.FeatureSpace["Pig"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "Pig")).Average());
+        key.FeatureSpace["TNT"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "TNT")).Average());
+        key.FeatureSpace["Block"] = (int)Math.Round(ratedLSystem.xmls.Select(x => CountOccurencesOf(x, "Block")).Average());
 
         return key;
+    }
+
+    private int CountOccurencesOf(string text, string pattern)
+    {
+        int count = 0;
+        foreach (Match match in Regex.Matches(text, pattern))
+        {
+            count++;
+        }
+        return count;
     }
 
     public class MapKey

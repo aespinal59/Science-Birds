@@ -61,8 +61,8 @@ public class EvolveScene : MonoBehaviour
         LSystemEvolver evolver = new LSystemEvolver(NUM_RULES, MAX_WIDTH, MAX_HEIGHT, MUT_RATE);
 
         //  Evolve population and store.
-        List<LSystem> evolvedLSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
-
+        //List<LSystem> evolvedLSystems = evolver.EvolvePopulation(pop, fit, MU, LAMBDA);
+        List<LSystem> evolvedLSystems = evolver.EvolvePopulationMAPElitesEdition(RatingSystem.keptForEvolution);
         Debug.Log(evolvedLSystems.Count);
         RatingSystem.keptForEvolution.Clear();
         --iterations;
