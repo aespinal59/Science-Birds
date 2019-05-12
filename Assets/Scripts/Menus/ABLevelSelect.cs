@@ -74,18 +74,48 @@ public class ABLevelSelect : ABMenu {
     public void SubmitRatings()
     {
         RatingSystem.SubmitRatings();
-        // keep some levels (starred ones?)
-        for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+        
+        // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
+        // the index in isStarred corresponds to the index in lSystems
+        //Debug.Log("creating wrapper list...");
+        List<LSystemWrapper> wrappers = new List<LSystemWrapper>();
+        for (int i = 0; i < RatingSystem.lSystems.Count; i++)
         {
-            // add starred level to kept list
-            if (RatingSystem.isStarred[i])
-            {
-                RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(RatingSystem.lSystems[i]));
-            }
+            //Debug.Log("in loop i=" + i);
+            LSystem lSystem = RatingSystem.lSystems[i];
+            //Debug.Log("got lSystem");
+            LSystemWrapper wrapper = new LSystemWrapper();
+            string[] axiomAndRules = LSystem.Encode(lSystem).Split('~');
+            //Debug.Log("created axiomAndRules");
+            wrapper.Axiom = axiomAndRules[0];
+            //Debug.Log("set Axiom");
+            wrapper.Rules = axiomAndRules[1];
+           // Debug.Log("set Rules");
+            wrapper.IsStarred = RatingSystem.isStarred[i];
+            //Debug.Log("set isStarred");
+            wrapper.PopulationId = SqlConnection.PopulationId.Value;
+           // Debug.Log("set PopulationId");
+            wrappers.Add(wrapper);
         }
-        // TODO: MUST HAVE A BACKUP PLAN IF PLAYER DOES NOT STAR ENOUGH LEVELS
-        int numLSystemsNeeded = RatingSystem.MAX_LSYSTEMS - RatingSystem.keptForEvolution.Count;
-        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(numLSystemsNeeded, GetPopulationCallBack));
+        //Debug.Log("finished creating wrapper list");
+
+        Debug.Log("started coroutine");
+        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(wrappers.ToArray(), () =>
+        {
+            // keep some levels (starred ones?)
+
+            for (int i = 0; i < RatingSystem.MAX_LSYSTEMS; ++i)
+            {
+                // add starred level to kept list
+                if (RatingSystem.isStarred[i])
+                {
+                    RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(RatingSystem.lSystems[i]));
+                }
+            }
+            // TODO: MUST HAVE A BACKUP PLAN IF PLAYER DOES NOT STAR ENOUGH LEVELS
+            int numLSystemsNeeded = RatingSystem.MAX_LSYSTEMS - RatingSystem.keptForEvolution.Count;
+            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(numLSystemsNeeded, GetPopulationCallBack));
+        }));
     }
 
     /// <summary>

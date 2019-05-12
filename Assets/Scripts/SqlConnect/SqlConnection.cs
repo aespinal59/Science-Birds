@@ -14,7 +14,7 @@ public class SqlConnection
     public static string hash { get; set; }
 
     // remember to use StartCoroutine when calling this function!
-    public static IEnumerator PostRating(LSystemWrapper[] LSystems)
+    public static IEnumerator PostRating(LSystemWrapper[] LSystems, Action done)
     {
         PostLSystemHelper helper = new PostLSystemHelper();
         helper.PopulationId = PopulationId.Value;
@@ -47,6 +47,8 @@ public class SqlConnection
                 ParentId = PopulationId;
             }
         }
+
+        done();
     }
 
     // Get population from MYSQL database

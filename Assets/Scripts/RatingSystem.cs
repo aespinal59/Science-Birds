@@ -204,33 +204,6 @@ public class RatingSystem : MonoBehaviour
         //     * got the lSystem on line 67, as long as you add a value in the ABLevel that represents the seed
         //     */ 
         //}
-
-        // IMPORTANT: Use the new List<bool> isStarred to determine which LSystem's have been selected by the player
-        // the index in isStarred corresponds to the index in lSystems
-        Debug.Log("creating wrapper list...");
-        List<LSystemWrapper> wrappers = new List<LSystemWrapper>();
-        for (int i = 0; i < lSystems.Count; i++)
-        {
-            Debug.Log("in loop i=" + i);
-            LSystem lSystem = lSystems[i];
-            Debug.Log("got lSystem");
-            LSystemWrapper wrapper = new LSystemWrapper();
-            string[] axiomAndRules = LSystem.Encode(lSystem).Split('~');
-            Debug.Log("created axiomAndRules");
-            wrapper.Axiom = axiomAndRules[0];
-            Debug.Log("set Axiom");
-            wrapper.Rules = axiomAndRules[1];
-            Debug.Log("set Rules");
-            wrapper.IsStarred = isStarred[i];
-            Debug.Log("set isStarred");
-            wrapper.PopulationId = SqlConnection.PopulationId.Value;
-            Debug.Log("set PopulationId");
-            wrappers.Add(wrapper);
-        }
-        Debug.Log("finished creating wrapper list");
-
-        SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.PostRating(wrappers.ToArray()));
-        Debug.Log("started coroutine");
     }
 
     public static List<float> GetFitnesses()
