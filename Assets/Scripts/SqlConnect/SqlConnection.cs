@@ -44,7 +44,6 @@ public class SqlConnection
             else
             {
                 Debug.Log(post.downloadHandler.text);
-                ParentId = PopulationId;
             }
         }
 
@@ -74,6 +73,11 @@ public class SqlConnection
                 string response = request.downloadHandler.text;
                 Debug.Log(response);
                 var JSONObj = JsonUtility.FromJson<PostLSystemHelper>(response);
+                if (JSONObj == null)
+                {
+                    goto Request;
+                }
+                ParentId = PopulationId;
                 PopulationId = JSONObj.PopulationId;
                 hash = JSONObj.Hash;
 
