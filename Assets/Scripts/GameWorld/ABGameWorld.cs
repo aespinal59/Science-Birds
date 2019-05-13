@@ -76,6 +76,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
     private float stabilityCounter;
     private float timeToStable;
+    public GameObject loading;
 
 	void Awake() {
 
@@ -109,6 +110,7 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
         {
             //Debug.Log("Not generating screenshots for level " + LevelList.Instance.CurrentIndex);
             HideViewCam.GetCamera().enabled = false;
+            loading.SetActive(false);
             hudObject.SetActive(true);
         }
 

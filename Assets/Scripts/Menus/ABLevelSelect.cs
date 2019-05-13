@@ -42,6 +42,7 @@ public class ABLevelSelect : ABMenu {
 
     public GameObject lSystemButtons;
     public GameObject levelButtons;
+    public Image loading;
     // private List<GameObject> tempLevelButtons;
 
 
@@ -262,5 +263,6 @@ public class ABLevelSelect : ABMenu {
             }
             RatingSystem.EndGeneratingScreenshots();
         }
+        loading.gameObject.SetActive(false);
     }
 }
