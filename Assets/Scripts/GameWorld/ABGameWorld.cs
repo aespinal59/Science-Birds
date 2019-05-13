@@ -76,7 +76,6 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
     private float stabilityCounter;
     private float timeToStable;
-    public GameObject loading;
 
 	void Awake() {
 
@@ -105,12 +104,13 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
             hudObject.SetActive(false);
             stabilityCounter = 0.3f;
             timeToStable = 0f;
+            GameplayCam.GetCamera().backgroundColor = new Color(0, 0, 0);
         }
         else
         {
             //Debug.Log("Not generating screenshots for level " + LevelList.Instance.CurrentIndex);
-            HideViewCam.GetCamera().enabled = false;
-            loading.SetActive(false);
+            //HideViewCam.GetCamera().enabled = false;
+            HideViewCam.gameObject.SetActive(false);
             hudObject.SetActive(true);
         }
 
@@ -204,9 +204,12 @@ public class ABGameWorld : ABSingleton<ABGameWorld> {
 
 			landscapePos.x += ABConstants.LEVEL_ORIGINAL_SIZE.x - 0.01f;
 
-			GameObject background = (GameObject)Instantiate(ABWorldAssets.BACKGROUND, backgroundPos, Quaternion.identity);
-			background.transform.parent = GameplayCam.transform;
-			backgroundPos.x += ABConstants.LEVEL_ORIGINAL_SIZE.x - 0.01f;
+            if (!RatingSystem.IsGenerating)
+            {
+                GameObject background = (GameObject)Instantiate(ABWorldAssets.BACKGROUND, backgroundPos, Quaternion.identity);
+                background.transform.parent = GameplayCam.transform;
+                backgroundPos.x += ABConstants.LEVEL_ORIGINAL_SIZE.x - 0.01f;
+            }
 		}
 
 		Vector2 slingshotPos = new Vector2 (currentLevel.slingshot.x, currentLevel.slingshot.y);

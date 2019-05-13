@@ -32,6 +32,7 @@ public class LSystemButton : MonoBehaviour
     public void GenerateNewLevels()
     {
         RatingSystem.GenerateXMLs(lSystemIndex, 5);
+        ABLevelSelect.loadXMLs();
         levelSelect.LoadScreenshots(lSystemIndex);
     }
 
