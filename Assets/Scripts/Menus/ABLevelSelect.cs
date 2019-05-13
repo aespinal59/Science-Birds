@@ -157,7 +157,7 @@ public class ABLevelSelect : ABMenu {
 
         RatingSystem.ClearAll();
 
-        EvolveScene.iterations = 5;
+        EvolveScene.iterations = 50;
         //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height

@@ -58,9 +58,13 @@ public class RatingSystem : MonoBehaviour
     public static readonly int MAX_LSYSTEMS = 12;
     public static readonly int MAX_LEVELS = 6;
 
+    public static readonly float MAX_VOLUME = 0.01f;
+
 
     void Awake()
     {
+        AudioListener.volume = MAX_VOLUME;
+
         lSystems = new List<LSystem>();
         levelData = new List<List<LevelData>>();
         isStarred = new List<bool>();
@@ -120,7 +124,7 @@ public class RatingSystem : MonoBehaviour
     public static void EndGeneratingScreenshots()
     {
         //Debug.Log("Ending generation");
-        AudioListener.volume = 0.1f;
+        AudioListener.volume = MAX_VOLUME;
         isGenerating = false;
         Time.timeScale = 1f;
     }
@@ -135,7 +139,7 @@ public class RatingSystem : MonoBehaviour
     }
     public static void EndGetFitnessForEvolution()
     {
-        AudioListener.volume = 0.1f;
+        AudioListener.volume = MAX_VOLUME;
         isGenerating = false;
         isEvolution = false;
         Time.timeScale = 1f;
