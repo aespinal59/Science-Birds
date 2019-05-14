@@ -643,15 +643,7 @@ public class LSystem
     public string GenerateXML(int height)
     {
         //  Get an axiom from a rule.
-        string axiom = "A"; //  Default
-        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in rules)
-        {
-            if (ruleset.Value.Item1.Count != 0)
-            {
-                axiom = ruleset.Key;
-                break;
-            }
-        }
+        string axiom = GetAxiom();
         iterations = new List<string> { axiom };
 
         //Generate the level by iterating.
