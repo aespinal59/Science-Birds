@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Text;
+using UnityEngine;
 //using UnityEngine;
 
 
@@ -204,7 +206,7 @@ public class LSystem
     }
 
     //Constructor with random rules & axiom.
-    public LSystem(int numRule, int maxW)
+    public LSystem(int numRule, int maxW, float percentPig = 0.1f)
     {
 
         numRules = numRule;
@@ -212,21 +214,33 @@ public class LSystem
         //Get random rules
         rules = GenerateRandomRules(numRule, maxW);
 
-
-        //  Get an axiom from a rule.
-        string axiom = "A"; //  Default
-        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in rules)
+        // Randomly modify some rules to spawn pigs
+        foreach (Tuple<List<string>, List<double>> rule in rules.Values)
         {
-            if (ruleset.Value.Item1.Count != 0)
+            if (rule.Item1.Count > 0 && ((random.Next(0, 100) / 100f) <= percentPig))
             {
-                axiom = ruleset.Key;
-                break;
+                int ruleIndex = random.Next(0, rule.Item1.Count);
+                //Debug.Log(rule.Item1.Count + ":" + ruleIndex);
+                StringBuilder sb = new StringBuilder(rule.Item1[ruleIndex]);
+                sb[random.Next(0, sb.Length)] = '%';
+                rule.Item1[ruleIndex] = sb.ToString();
             }
         }
 
+        ////  Get an axiom from a rule.
+        //string axiom = "A"; //  Default
+        //foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in rules)
+        //{
+        //    if (ruleset.Value.Item1.Count != 0)
+        //    {
+        //        axiom = ruleset.Key;
+        //        break;
+        //    }
+        //}
+
         //Initialize LSystem
 
-        iterations = new List<string> { axiom };
+        //iterations = new List<string> { axiom };
         rowStartCoordinates = new List<double> { };
     }
 
@@ -271,8 +285,8 @@ public class LSystem
             //Get a condition.
             string condition = symbols[random.Next(symbols.Count)];
 
-            //Get a successor of random width < max width.
-            int succWidth = random.Next(1, maxW);
+            //Get a successor of random width <= max width.
+            int succWidth = random.Next(1, maxW + 1);
             string successor = "";
             for (int s = 0; s < succWidth; s++)
             {
@@ -606,6 +620,18 @@ public class LSystem
 
     public string GenerateXML(int height)
     {
+        //  Get an axiom from a rule.
+        string axiom = "A"; //  Default
+        foreach (KeyValuePair<string, Tuple<List<string>, List<double>>> ruleset in rules)
+        {
+            if (ruleset.Value.Item1.Count != 0)
+            {
+                axiom = ruleset.Key;
+                break;
+            }
+        }
+        iterations = new List<string> { axiom };
+
         //Generate the level by iterating.
         Iterate(height);
 

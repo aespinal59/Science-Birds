@@ -57,7 +57,7 @@ public class ABLevelSelect : ABMenu {
             }
             else
             {
-                RatingSystem.lSystems.Add(new LSystem(10, 3));
+                RatingSystem.lSystems.Add(new LSystem(16, 3, 0.2f));
             }
             RatingSystem.GenerateXMLs(i, 5);
         }
@@ -115,7 +115,7 @@ public class ABLevelSelect : ABMenu {
             }
             // TODO: MUST HAVE A BACKUP PLAN IF PLAYER DOES NOT STAR ENOUGH LEVELS
             int numLSystemsNeeded = RatingSystem.MAX_LSYSTEMS - RatingSystem.keptForEvolution.Count;
-            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(numLSystemsNeeded, GetPopulationCallBack));
+            SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation((int)(numLSystemsNeeded * 0.8f), GetPopulationCallBack));
         }));
     }
 
@@ -138,7 +138,7 @@ public class ABLevelSelect : ABMenu {
 
         while (RatingSystem.keptForEvolution.Count < RatingSystem.MAX_LSYSTEMS)
         {
-            RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(new LSystem(10, 3)));
+            RatingSystem.keptForEvolution.Add(new RatingSystem.LSystemEvolution(new LSystem(16, 3, 0.2f)));
         }
 
         //for (int i = kept; i < RatingSystem.MAX_LSYSTEMS; i++)
@@ -157,7 +157,7 @@ public class ABLevelSelect : ABMenu {
 
         RatingSystem.ClearAll();
 
-        EvolveScene.iterations = 50;
+        EvolveScene.iterations = 10;
         //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height
@@ -240,7 +240,7 @@ public class ABLevelSelect : ABMenu {
             Debug.Log("Initializing LSystems...");
             SqlManager.SqlManagerInstance.StartCoroutine(SqlConnection.GetPopulation(12, retrievedLSystems =>
             {
-                Debug.Log("got 'em");
+                Debug.Log("got 'em " + retrievedLSystems.Count());
                 foreach (LSystemWrapper w in retrievedLSystems)
                 {
                     Debug.Log(w.GetString());
