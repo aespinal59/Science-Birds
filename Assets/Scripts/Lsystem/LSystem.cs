@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 //using UnityEngine;
@@ -615,6 +616,27 @@ public class LSystem
 
 
         }
+
+    }
+
+    public string GetAxiom()
+    {
+        string axiom = "A";
+        List<int> options = new List<int>();
+        for (int i = 0; i < rules.Count; ++i)
+        {
+            options.Add(i);
+        }
+        do
+        {
+            int randIndex = options[random.Next(0, options.Count)];
+            axiom = rules.Keys.ToList<string>()[randIndex];
+            if (rules[axiom].Item1.Count > 0)
+            {
+                return axiom;
+            }
+            options.Remove(randIndex);
+        } while (true);
 
     }
 

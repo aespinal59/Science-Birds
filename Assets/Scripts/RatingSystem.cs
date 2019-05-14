@@ -58,7 +58,7 @@ public class RatingSystem : MonoBehaviour
     public static readonly int MAX_LSYSTEMS = 12;
     public static readonly int MAX_LEVELS = 6;
 
-    public static readonly float MAX_VOLUME = 0.01f;
+    public static readonly float MAX_VOLUME = 0.0f;
 
 
     void Awake()
