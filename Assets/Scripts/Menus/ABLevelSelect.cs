@@ -156,8 +156,12 @@ public class ABLevelSelect : ABMenu {
         // TODO: Run evolution here and replace RatingSystem.keptForEvolution with the list of newly created LSystems
 
         RatingSystem.ClearAll();
-
+#if UNITY_WEBGL && !UNITY_EDITOR
+        
+        EvolveScene.iterations = 5;
+#else
         EvolveScene.iterations = 10;
+#endif
         //ABSceneManager.Instance.LoadScene("LevelSelectMenu");
         ABSceneManager.Instance.LoadScene("Evolution");
         //RatingSystem.GenerateXMLs(RatingSystem.CurrentLSystemIndex, 5); // hardcoded height

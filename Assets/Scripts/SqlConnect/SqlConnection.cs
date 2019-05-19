@@ -4,10 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+public enum Algorithm
+{
+    MAPElites,
+    MuLambda
+}
+
 public class SqlConnection
 {
     static string addRatingURL = "https://hispid-compounds.000webhostapp.com/php/AddRating.php"; //be sure to add a ? to your url
     static string getPopulationURL = "https://hispid-compounds.000webhostapp.com/php/GetPopulation.php";
+    public static Algorithm algorithm = Algorithm.MAPElites;
 
     public static int? PopulationId { get; set; }
     public static int? ParentId { get; set; }
@@ -27,7 +34,7 @@ public class SqlConnection
         var jsonString = JsonUtility.ToJson(helper);
 
         Debug.Log("Uploading: " + jsonString);
-        using (UnityWebRequest post = UnityWebRequest.Put(addRatingURL, jsonString))
+        using (UnityWebRequest post = UnityWebRequest.Put(addRatingURL + "?Algorithm=" + algorithm.ToString(), jsonString))
         {
             post.method = "POST";
             post.SetRequestHeader("X-Requested-With", "XMLHttpRequest");
@@ -56,7 +63,7 @@ public class SqlConnection
     public static IEnumerator GetPopulation(int numLSystems, Action<LSystemWrapper[]> done)
     {
         Request:
-            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?NumLSystems=" + numLSystems + 
+            UnityWebRequest request = new UnityWebRequest(getPopulationURL + "?Algorithm=" + algorithm.ToString() + "&NumLSystems=" + numLSystems + 
                 (ParentId != null ? "&ParentId=" + ParentId?.ToString() : "") + 
                 ((ParentId.HasValue && ParentId.Value == PopulationId) || (!ParentId.HasValue && PopulationId != null) ? "&PopulationId=" + PopulationId : ""));
             request.downloadHandler = new DownloadHandlerBuffer();
